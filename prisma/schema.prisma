@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum ItemStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+enum TransactionType {
+  INBOUND
+  OUTBOUND
+  ADJUSTMENT
+  RETURN
+}
+
+enum ShipmentStatus {
+  PENDING
+  APPROVED
+  PICKING
+  PACKED
+  SHIPPED
+  DELAYED
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+// ─── Core Models ──────────────────────────────────────────────────────────────
+
+model User {
+  id           Int                @id @default(autoincrement())
+  name         String
+  email        String             @unique
+  password     String
+  role         UserRole           @default(OPERATOR)
+  transactions StockTransaction[]
+  shipments    Shipment[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model Category {
+  id    Int             @id @default(autoincrement())
+  name  String          @unique
+  slug  String          @unique
+  icon  String?
+  items InventoryItem[]
+}
+
+model Brand {
+  id    Int             @id @default(autoincrement())
+  name  String          @unique
+  items InventoryItem[]
+}
+
+model Supplier {
+  id        Int             @id @default(autoincrement())
+  name      String
+  contact   String?
+  email     String?
+  phone     String?
+  address   String?
+  items     InventoryItem[]
+  createdAt DateTime        @default(now())
+}
+
+model Warehouse {
+  id       Int             @id @default(autoincrement())
+  name     String
+  location String
+  zone     String?
+  items    InventoryItem[]
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id            Int                @id @default(autoincrement())
+  sku           String             @unique
+  name          String
+  modelName     String
+  categoryId    Int
+  category      Category           @relation(fields: [categoryId], references: [id])
+  brandId       Int
+  brand         Brand              @relation(fields: [brandId], references: [id])
+  supplierId    Int?
+  supplier      Supplier?          @relation(fields: [supplierId], references: [id])
+  warehouseId   Int
+  warehouse     Warehouse          @relation(fields: [warehouseId], references: [id])
+  quantity      Int                @default(0)
+  safetyStock   Int                @default(10)
+  unitPrice     Float?
+  status        ItemStatus         @default(IN_STOCK)
+  specs         Json?
+  notes         String?
+  transactions  StockTransaction[]
+  shipmentItems ShipmentItem[]
+  alerts        LowStockAlert[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+// ─── Transactions ─────────────────────────────────────────────────────────────
+
+model StockTransaction {
+  id        Int             @id @default(autoincrement())
+  type      TransactionType
+  itemId    Int
+  item      InventoryItem   @relation(fields: [itemId], references: [id])
+  quantity  Int
+  userId    Int
+  user      User            @relation(fields: [userId], references: [id])
+  reference String?
+  notes     String?
+  createdAt DateTime        @default(now())
+}
+
+// ─── Shipments ────────────────────────────────────────────────────────────────
+
+model Shipment {
+  id         Int            @id @default(autoincrement())
+  shipmentNo String         @unique
+  status     ShipmentStatus @default(PENDING)
+  priority   Priority       @default(NORMAL)
+  requester  String
+  department String?
+  dueDate    DateTime?
+  shippedAt  DateTime?
+  userId     Int
+  user       User           @relation(fields: [userId], references: [id])
+  items      ShipmentItem[]
+  notes      String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model ShipmentItem {
+  id         Int           @id @default(autoincrement())
+  shipmentId Int
+  shipment   Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  itemId     Int
+  item       InventoryItem @relation(fields: [itemId], references: [id])
+  quantity   Int
+}
+
+// ─── Alerts ───────────────────────────────────────────────────────────────────
+
+model LowStockAlert {
+  id        Int           @id @default(autoincrement())
+  itemId    Int
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+  threshold Int
+  resolved  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+}
