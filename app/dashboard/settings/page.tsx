@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
+import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
@@ -68,6 +69,12 @@ export default async function SettingsPage() {
             })}
           </ul>
         </SectionCard>
+
+        <div id="password">
+          <SectionCard title="계정 설정" subtitle="비밀번호를 변경합니다">
+            <ChangePasswordForm />
+          </SectionCard>
+        </div>
 
         <SectionCard title="알림 설정">
           <div className="space-y-3">

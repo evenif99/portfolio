@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/common/PageHeader";
 import { prisma } from "@/lib/prisma";
 
@@ -6,7 +7,7 @@ export default async function BrandsPage() {
     orderBy: { name: "asc" },
     include: {
       items: {
-        select: { modelName: true, quantity: true, category: { select: { name: true } } },
+        select: { id: true, modelName: true, quantity: true, category: { select: { name: true } } },
         orderBy: { quantity: "desc" },
       },
     },
@@ -37,8 +38,14 @@ export default async function BrandsPage() {
                     <td className="px-4 py-3 font-bold text-foreground">{brand.name}</td>
                     <td className="px-4 py-3 text-muted-foreground max-w-[200px]">
                       <div className="space-y-0.5">
-                        {brand.items.slice(0, 2).map((i, idx) => (
-                          <p key={idx} className="truncate">{i.modelName}</p>
+                        {brand.items.slice(0, 2).map((i) => (
+                          <Link
+                            key={i.id}
+                            href={`/dashboard/inventory/${i.id}`}
+                            className="block truncate hover:text-blue-600 transition-colors"
+                          >
+                            {i.modelName}
+                          </Link>
                         ))}
                         {brand.items.length > 2 && (
                           <p className="text-[10px] text-muted-foreground/60">+{brand.items.length - 2}개</p>

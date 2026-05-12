@@ -76,14 +76,17 @@ model Brand {
 }
 
 model Supplier {
-  id        Int             @id @default(autoincrement())
-  name      String
-  contact   String?
-  email     String?
-  phone     String?
-  address   String?
-  items     InventoryItem[]
-  createdAt DateTime        @default(now())
+  id           Int             @id @default(autoincrement())
+  name         String
+  contact      String?
+  email        String?
+  phone        String?
+  address      String?
+  leadTimeDays Int?
+  notes        String?
+  items        InventoryItem[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt @default(now())
 }
 
 model Warehouse {
@@ -113,6 +116,7 @@ model InventoryItem {
   safetyStock   Int                @default(10)
   unitPrice     Float?
   status        ItemStatus         @default(IN_STOCK)
+  imageUrl      String?
   specs         Json?
   notes         String?
   transactions  StockTransaction[]

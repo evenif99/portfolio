@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/common/PageHeader";
 import { prisma } from "@/lib/prisma";
 
@@ -54,17 +55,26 @@ export default async function CategoriesPage() {
                 {cat.items.length > 0 && (
                   <div className="mt-3 space-y-1.5">
                     {cat.items.slice(0, 3).map((item) => (
-                      <div key={item.id} className="flex items-center justify-between text-[11px]">
+                      <Link
+                        key={item.id}
+                        href={`/dashboard/inventory/${item.id}`}
+                        className="flex items-center justify-between text-[11px] hover:bg-muted/50 rounded px-1 -mx-1 py-0.5 transition-colors"
+                      >
                         <span className="text-muted-foreground truncate">{item.modelName}</span>
                         <span className={`font-semibold tabular-nums ${
                           item.quantity === 0 ? "text-red-600"
                           : item.quantity < item.safetyStock ? "text-amber-600"
                           : "text-foreground"
                         }`}>{item.quantity}</span>
-                      </div>
+                      </Link>
                     ))}
                     {cat.items.length > 3 && (
-                      <p className="text-[10px] text-muted-foreground/60">+{cat.items.length - 3}개 더</p>
+                      <Link
+                        href={`/dashboard/inventory?category=${cat.id}`}
+                        className="block text-[10px] text-blue-600 hover:text-blue-700 transition-colors mt-0.5"
+                      >
+                        +{cat.items.length - 3}개 더 보기
+                      </Link>
                     )}
                   </div>
                 )}

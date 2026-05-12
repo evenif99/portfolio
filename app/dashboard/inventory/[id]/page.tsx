@@ -1,11 +1,16 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, Package, Pencil } from "lucide-react";
 import { InventoryStatusBadge } from "@/components/inventory/InventoryStatusBadge";
 import { StockLevelBar } from "@/components/inventory/StockLevelBar";
+import { TransactionForm } from "@/components/inventory/TransactionForm";
+import { ItemFormModal } from "@/components/inventory/ItemFormModal";
+import { DeleteItemButton } from "@/components/inventory/DeleteItemButton";
 import { SectionCard } from "@/components/common/SectionCard";
 import { prisma } from "@/lib/prisma";
 import { TX_TYPE_LABEL, TX_TYPE_COLOR } from "@/lib/constants";
+import { kstDateTimeString } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
 
@@ -16,10 +21,6 @@ const TX_ICON = {
   RETURN:     RotateCcw,
 } as const;
 
-function fmtDateTime(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-}
-
 export default async function InventoryItemPage({
   params,
 }: {
@@ -27,7 +28,7 @@ export default async function InventoryItemPage({
 }) {
   const { id } = await params;
 
-  const [item, itemTx] = await Promise.all([
+  const [item, itemTx, categories, brands, suppliers, warehouses] = await Promise.all([
     prisma.inventoryItem.findUnique({
       where: { id: Number(id) },
       include: {
@@ -35,6 +36,7 @@ export default async function InventoryItemPage({
         brand:     true,
         supplier:  true,
         warehouse: true,
+        _count:    { select: { transactions: true, shipmentItems: true } },
       },
     }),
     prisma.stockTransaction.findMany({
@@ -42,9 +44,31 @@ export default async function InventoryItemPage({
       orderBy: { createdAt: "desc" },
       include: { user: { select: { name: true } } },
     }),
+    prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.brand.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.supplier.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.warehouse.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
 
   if (!item) notFound();
+
+  const refData = { categories, brands, suppliers, warehouses };
+  const editableItem = {
+    id:          item.id,
+    sku:         item.sku,
+    name:        item.name,
+    modelName:   item.modelName,
+    categoryId:  item.categoryId,
+    brandId:     item.brandId,
+    supplierId:  item.supplierId ?? null,
+    warehouseId: item.warehouseId,
+    quantity:    item.quantity,
+    safetyStock: item.safetyStock,
+    unitPrice:   item.unitPrice ?? null,
+    imageUrl:    item.imageUrl ?? null,
+    notes:       item.notes ?? null,
+    specs:       item.specs as Record<string, string> | null,
+  };
 
   const specs = item.specs as Record<string, string> | null;
 
@@ -58,17 +82,54 @@ export default async function InventoryItemPage({
           <ArrowLeft className="h-3 w-3" /> 재고 목록으로
         </Link>
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[11px] text-muted-foreground mb-0.5">{item.sku}</p>
-            <h1 className="text-lg font-bold text-foreground">{item.name}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{item.modelName}</p>
+          <div className="flex items-start gap-4">
+            <div className="relative h-20 w-20 flex-shrink-0 rounded-lg border border-border bg-muted/40 overflow-hidden">
+              {item.imageUrl ? (
+                <Image
+                  src={item.imageUrl}
+                  alt={item.name}
+                  fill
+                  sizes="80px"
+                  className="object-contain p-1"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Package className="h-8 w-8 text-muted-foreground/40" />
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-mono text-[11px] text-muted-foreground mb-0.5">{item.sku}</p>
+              <h1 className="text-lg font-bold text-foreground">{item.name}</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">{item.modelName}</p>
+            </div>
           </div>
-          <InventoryStatusBadge status={item.status as any} />
+          <div className="flex items-center gap-2">
+            <InventoryStatusBadge status={item.status as any} />
+            <ItemFormModal
+              mode="edit"
+              item={editableItem}
+              refData={refData}
+              trigger={
+                <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+                  <Pencil className="h-3.5 w-3.5" />
+                  수정
+                </button>
+              }
+            />
+            <DeleteItemButton
+              itemId={item.id}
+              itemName={item.name}
+              hasTx={item._count.transactions > 0}
+              hasShipments={item._count.shipmentItems > 0}
+            />
+          </div>
         </div>
       </div>
 
       <div className="p-6 space-y-5">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4">
 
           {/* Stock summary */}
           <SectionCard title="재고 현황">
@@ -137,6 +198,13 @@ export default async function InventoryItemPage({
               }
             </dl>
           </SectionCard>
+
+          {/* 입출고 등록 폼 */}
+          <TransactionForm
+            itemId={item.id}
+            currentQty={item.quantity}
+            safetyStock={item.safetyStock}
+          />
         </div>
 
         {/* Transaction History */}
@@ -183,7 +251,7 @@ export default async function InventoryItemPage({
                       <td className="px-4 py-2.5 font-mono text-[11px] text-muted-foreground">{tx.reference ?? "—"}</td>
                       <td className="px-4 py-2.5 text-muted-foreground">{tx.user.name}</td>
                       <td className="px-4 py-2.5 text-muted-foreground">{tx.notes || "—"}</td>
-                      <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">{fmtDateTime(tx.createdAt)}</td>
+                      <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">{kstDateTimeString(tx.createdAt)}</td>
                     </tr>
                   );
                 })}

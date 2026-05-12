@@ -5,9 +5,11 @@ import {
 } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ShipmentStatusBadge, PriorityBadge } from "@/components/shipments/ShipmentStatusBadge";
+import { AlertPanel, ResolveAllButton } from "@/components/dashboard/AlertPanel";
 import { SectionCard } from "@/components/common/SectionCard";
 import { PageHeader } from "@/components/common/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { kstStartOfToday } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
 
@@ -63,7 +65,7 @@ export default async function DashboardPage() {
       orderBy: { name: "asc" },
     }),
     prisma.stockTransaction.findMany({
-      where: { createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
+      where: { createdAt: { gte: kstStartOfToday() } },
     }),
   ]);
 
@@ -143,44 +145,18 @@ export default async function DashboardPage() {
           {/* Low Stock Alerts */}
           <SectionCard
             title="재고 부족 알림"
-            subtitle="안전재고 미만 품목"
+            subtitle={`안전재고 미만 ${lowStockAlerts.length}건`}
             action={
-              <Link href="/dashboard/inventory" className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700">
-                전체 <ChevronRight className="h-3 w-3" />
-              </Link>
+              <div className="flex items-center gap-3">
+                <ResolveAllButton />
+                <Link href="/dashboard/inventory" className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700">
+                  전체 <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
             }
             noPadding
           >
-            <ul className="divide-y divide-border">
-              {lowStockAlerts.map((a) => {
-                const pct = a.item.safetyStock > 0
-                  ? Math.round((a.item.quantity / a.item.safetyStock) * 100)
-                  : 0;
-                const isOut = a.item.quantity === 0;
-                return (
-                  <li key={a.id} className="px-4 py-3 hover:bg-muted/20 transition-colors">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-[12px] font-semibold text-foreground leading-tight line-clamp-1">
-                        {a.item.modelName}
-                      </p>
-                      <span className={cn(
-                        "flex-shrink-0 text-[10px] font-bold tabular-nums",
-                        isOut ? "text-red-600" : "text-amber-600",
-                      )}>
-                        {isOut ? "품절" : `${a.item.quantity}/${a.item.safetyStock}`}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mb-1.5 truncate">{a.item.sku}</p>
-                    <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={cn("h-full rounded-full", isOut ? "bg-red-500" : "bg-amber-500")}
-                        style={{ width: `${Math.min(pct, 100)}%` }}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <AlertPanel alerts={lowStockAlerts} />
           </SectionCard>
         </div>
 

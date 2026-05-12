@@ -2,6 +2,7 @@
 
 import { hash } from "bcryptjs";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SignupSchema, LoginSchema } from "@/lib/definitions";
@@ -57,7 +58,8 @@ export async function login(
       password: parsed.data.password,
       redirectTo: "/dashboard",
     });
-  } catch {
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
     return { message: "이메일 또는 비밀번호가 올바르지 않습니다." };
   }
 }
