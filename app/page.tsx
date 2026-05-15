@@ -2,21 +2,79 @@ import Link from "next/link";
 import { ArrowRight, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { FeatureCards } from "@/components/home/FeatureModal";
-import { CategoryBrowser } from "@/components/home/CategoryBrowser";
+import { CategoryBrowser, type CategoryData } from "@/components/home/CategoryBrowser";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-const metrics = [
-  { label: "관리 SKU",  value: "22",  sub: "품목"  },
-  { label: "총 재고",   value: "597", sub: "units" },
-  { label: "금일 출고", value: "15",  sub: "건"    },
-  { label: "부족 재고", value: "7",   sub: "품목", alert: true },
-];
+const CATEGORY_META: Record<string, { name: string; desc: string; sub: string }> = {
+  gpu:       { name: "GPU",    desc: "그래픽 카드",            sub: "NVIDIA RTX / AMD Radeon"  },
+  cpu:       { name: "CPU",    desc: "프로세서",                sub: "Intel Core / AMD Ryzen"   },
+  ram:       { name: "RAM",    desc: "메모리",                  sub: "DDR4 / DDR5"              },
+  ssd:       { name: "SSD",    desc: "솔리드 스테이트 드라이브", sub: "NVMe PCIe 4.0 / SATA"    },
+  hdd:       { name: "HDD",    desc: "하드 디스크 드라이브",     sub: 'SATA 3.5"'               },
+  mainboard: { name: "메인보드", desc: "마더보드",               sub: "AM5 / LGA1700"            },
+  psu:       { name: "PSU",    desc: "파워 서플라이",            sub: "80+ Gold / Platinum"      },
+  case:      { name: "케이스",  desc: "컴퓨터 케이스",           sub: "ATX / mATX"               },
+  cooler:    { name: "쿨러",    desc: "CPU 쿨러",               sub: "공랭 / 수랭"               },
+};
+
+const SLUG_ORDER = ["gpu", "cpu", "ram", "ssd", "hdd", "mainboard", "psu", "case", "cooler"];
+
+function buildSpec(specs: unknown): string {
+  if (!specs || typeof specs !== "object") return "";
+  return Object.values(specs as Record<string, string>).slice(0, 3).join(" · ");
+}
+
 
 export default async function HomePage() {
-  const session = await auth();
+  const [session, rawCategories] = await Promise.all([
+    auth(),
+    prisma.category.findMany({
+      include: {
+        items: {
+          select: { id: true, name: true, imageUrl: true, specs: true, quantity: true, safetyStock: true, status: true },
+          orderBy: [{ imageUrl: "asc" }, { name: "asc" }],
+        },
+      },
+    }),
+  ]);
+
   const isLoggedIn = !!session?.user;
   const userName = session?.user?.name;
   const initial = userName?.charAt(0).toUpperCase();
+
+  const categoriesData: CategoryData[] = SLUG_ORDER
+    .map((slug) => {
+      const cat = rawCategories.find((c) => c.slug === slug);
+      const meta = CATEGORY_META[slug];
+      if (!cat || !meta) return null;
+      return {
+        slug,
+        name: meta.name,
+        desc: meta.desc,
+        sub: meta.sub,
+        products: cat.items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          spec: buildSpec(item.specs),
+          img: item.imageUrl,
+        })),
+      };
+    })
+    .filter((c) => c !== null) as CategoryData[];
+
+  const allItems = rawCategories.flatMap((c) => c.items);
+  const totalSku = allItems.length;
+  const totalQty = allItems.reduce((s, i) => s + i.quantity, 0);
+  const lowStockCount = allItems.filter((i) => i.quantity > 0 && i.quantity <= i.safetyStock).length;
+  const outOfStockCount = allItems.filter((i) => i.status === "OUT_OF_STOCK").length;
+
+  const metrics = [
+    { label: "관리 SKU",  value: String(totalSku),                  sub: "품목"  },
+    { label: "총 재고",   value: totalQty.toLocaleString("ko-KR"),   sub: "units" },
+    { label: "품절 품목", value: String(outOfStockCount),            sub: "건"    },
+    { label: "부족 재고", value: String(lowStockCount),              sub: "품목", alert: true },
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -151,7 +209,7 @@ export default async function HomePage() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">취급 품목</p>
           <h2 className="mt-1.5 mb-2 text-xl font-bold text-foreground">PC 부품 전 카테고리 관리</h2>
           <p className="mb-8 text-sm text-muted-foreground">탭을 선택해 카테고리별 취급 부품과 상세 스펙을 확인하세요.</p>
-          <CategoryBrowser />
+          <CategoryBrowser categories={categoriesData} />
         </div>
       </section>
 
