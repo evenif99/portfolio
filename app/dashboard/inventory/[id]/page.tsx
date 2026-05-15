@@ -205,6 +205,7 @@ export default async function InventoryItemPage({
             itemId={item.id}
             currentQty={item.quantity}
             safetyStock={item.safetyStock}
+            itemSku={item.sku}
           />
         </div>
 

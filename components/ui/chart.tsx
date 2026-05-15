@@ -104,6 +104,14 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+type ChartTooltipPayloadItem = {
+  name?: string
+  value?: number | string
+  dataKey?: string | number
+  color?: string
+  payload?: Record<string, unknown> & { fill?: string }
+}
+
 function ChartTooltipContent({
   active,
   payload,
@@ -118,8 +126,20 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<'div'> & {
+}: React.ComponentProps<'div'> & {
+    active?: boolean
+    payload?: ChartTooltipPayloadItem[]
+    label?: string
+    formatter?: (
+      value: number | string,
+      name: string,
+      item: ChartTooltipPayloadItem,
+      index: number,
+      payload: Record<string, unknown> | undefined,
+    ) => React.ReactNode
+    labelFormatter?: (value: React.ReactNode, payload: ChartTooltipPayloadItem[]) => React.ReactNode
+    labelClassName?: string
+    color?: string
     hideLabel?: boolean
     hideIndicator?: boolean
     indicator?: 'line' | 'dot' | 'dashed'
@@ -179,10 +199,10 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item, index) => {
+      {payload.map((item: ChartTooltipPayloadItem, index: number) => {
           const key = `${nameKey || item.name || item.dataKey || 'value'}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
-          const indicatorColor = color || item.payload.fill || item.color
+                  const indicatorColor = color || item.payload?.fill || item.color
 
           return (
             <div
@@ -256,8 +276,9 @@ function ChartLegendContent({
   payload,
   verticalAlign = 'bottom',
   nameKey,
-}: React.ComponentProps<'div'> &
-  Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
+}: React.ComponentProps<'div'> & {
+    payload?: Array<{ value?: string; color?: string; dataKey?: string | number; payload?: Record<string, unknown> }>
+    verticalAlign?: 'top' | 'bottom' | 'middle'
     hideIcon?: boolean
     nameKey?: string
   }) {

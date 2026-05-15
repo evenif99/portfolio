@@ -6,7 +6,12 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+    // Serverless environments (Vercel) create a new process per invocation.
+    // Limiting to 1 connection prevents exhausting Neon's free-tier pool limit.
+    max: process.env.NODE_ENV === "production" ? 1 : 10,
+  });
   return new PrismaClient({
     adapter,
     log:

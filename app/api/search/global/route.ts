@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         ],
       },
       orderBy: { updatedAt: "desc" },
-      take: 8,
+      take: 5,
       select: { id: true, sku: true, modelName: true },
     }),
     prisma.supplier.findMany({

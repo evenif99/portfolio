@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CommandDialog,
@@ -40,6 +40,8 @@ export function GlobalSearchCommand() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<SearchResult>({ items: [], suppliers: [], orders: [] });
+  const [loading, setLoading] = useState(false);
+  const latestReqRef = useRef(0);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -56,23 +58,39 @@ export function GlobalSearchCommand() {
     const q = query.trim();
     if (q.length < 1) {
       setResult({ items: [], suppliers: [], orders: [] });
+      setLoading(false);
       return;
     }
 
+    const reqId = ++latestReqRef.current;
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
-      const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}`);
-      if (!res.ok) return;
-      const data = (await res.json()) as SearchResult;
-      setResult(data);
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/search/global?q=${encodeURIComponent(q)}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as SearchResult;
+        // Only apply the latest response to prevent stale overwrite.
+        if (latestReqRef.current === reqId) {
+          setResult(data);
+        }
+      } catch {
+        // ignore aborted/in-flight request errors
+      } finally {
+        if (latestReqRef.current === reqId) {
+          setLoading(false);
+        }
+      }
     }, 180);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
-
-  const hasAny = useMemo(
-    () => result.items.length + result.suppliers.length + result.orders.length > 0,
-    [result],
-  );
 
   const go = (href: string) => {
     setOpen(false);
@@ -94,12 +112,18 @@ export function GlobalSearchCommand() {
       <CommandDialog open={open} onOpenChange={setOpen} title="Global Search" description="Search items, suppliers, and purchase orders">
         <CommandInput value={query} onValueChange={setQuery} placeholder="Search SKU, supplier, or order number..." />
         <CommandList>
-          <CommandEmpty>{query.trim() ? "No result" : "Type to search"}</CommandEmpty>
+          <CommandEmpty>
+            {query.trim() ? (loading ? "Searching..." : "No result") : "Type to search"}
+          </CommandEmpty>
 
           {result.items.length > 0 && (
             <CommandGroup heading="Items">
-              {result.items.map((item) => (
-                <CommandItem key={`item-${item.id}`} onSelect={() => go(`/dashboard/inventory/${item.id}`)}>
+              {result.items.slice(0, 5).map((item) => (
+                <CommandItem
+                  key={`item-${item.id}`}
+                  value={`${item.modelName} ${item.sku}`}
+                  onSelect={() => go(`/dashboard/inventory/${item.id}`)}
+                >
                   {item.modelName} ({item.sku})
                 </CommandItem>
               ))}
@@ -109,7 +133,11 @@ export function GlobalSearchCommand() {
           {result.suppliers.length > 0 && (
             <CommandGroup heading="Suppliers">
               {result.suppliers.map((supplier) => (
-                <CommandItem key={`supplier-${supplier.id}`} onSelect={() => go(`/dashboard/suppliers/${supplier.id}`)}>
+                <CommandItem
+                  key={`supplier-${supplier.id}`}
+                  value={supplier.name}
+                  onSelect={() => go(`/dashboard/suppliers/${supplier.id}`)}
+                >
                   {supplier.name}
                 </CommandItem>
               ))}
@@ -119,14 +147,16 @@ export function GlobalSearchCommand() {
           {result.orders.length > 0 && (
             <CommandGroup heading="Purchase Orders">
               {result.orders.map((po) => (
-                <CommandItem key={`po-${po.id}`} onSelect={() => go(`/dashboard/purchase-orders/${po.id}`)}>
+                <CommandItem
+                  key={`po-${po.id}`}
+                  value={`${po.orderNo} ${po.supplier.name} ${po.status}`}
+                  onSelect={() => go(`/dashboard/purchase-orders/${po.id}`)}
+                >
                   {po.orderNo} · {po.supplier.name} · {po.status}
                 </CommandItem>
               ))}
             </CommandGroup>
           )}
-
-          {!hasAny && query.trim().length > 0 && <CommandEmpty>No result</CommandEmpty>}
         </CommandList>
       </CommandDialog>
     </>

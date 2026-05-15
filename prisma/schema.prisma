@@ -59,6 +59,7 @@ model User {
   transactions   StockTransaction[]
   shipments      Shipment[]
   purchaseOrders PurchaseOrder[]
+  pushSubscriptions PushSubscription[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 }
@@ -246,4 +247,16 @@ model SupplierItemPrice {
   updatedAt  DateTime      @updatedAt
 
   @@unique([supplierId, itemId])
+}
+
+model PushSubscription {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint       String   @unique
+  p256dh         String
+  auth           String
+  expirationTime Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
