@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, Package, Pencil } from "lucide-react";
+import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, ArrowRightLeft, Package, Pencil } from "lucide-react";
 import { InventoryStatusBadge } from "@/components/inventory/InventoryStatusBadge";
 import { StockLevelBar } from "@/components/inventory/StockLevelBar";
 import { TransactionForm } from "@/components/inventory/TransactionForm";
@@ -19,6 +19,7 @@ const TX_ICON = {
   OUTBOUND:   ArrowUpFromLine,
   ADJUSTMENT: RefreshCw,
   RETURN:     RotateCcw,
+  TRANSFER:   ArrowRightLeft,
 } as const;
 
 export default async function InventoryItemPage({
@@ -245,7 +246,7 @@ export default async function InventoryItemPage({
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <span className={cn("font-bold tabular-nums text-[13px]", isNeg ? "text-red-500" : "text-emerald-600")}>
-                          {isNeg ? "-" : "+"}{Math.abs(tx.quantity)}
+                          {type === "TRANSFER" ? "<->" : (isNeg ? "-" : "+")}{Math.abs(tx.quantity)}
                         </span>
                       </td>
                       <td className="px-4 py-2.5 font-mono text-[11px] text-muted-foreground">{tx.reference ?? "—"}</td>

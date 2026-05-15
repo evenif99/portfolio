@@ -1,4 +1,4 @@
-import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, ArrowRightLeft } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { TransactionFilterTabs } from "@/components/transactions/TransactionFilterTabs";
 import { Pagination } from "@/components/common/Pagination";
@@ -14,6 +14,7 @@ const TX_ICON = {
   OUTBOUND:   ArrowUpFromLine,
   ADJUSTMENT: RefreshCw,
   RETURN:     RotateCcw,
+  TRANSFER:   ArrowRightLeft,
 } as const;
 
 const PAGE_SIZE = 30;
@@ -104,7 +105,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
                         <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">{tx.item.sku}</td>
                         <td className="px-4 py-3 text-right">
                           <span className={cn("font-bold tabular-nums text-[13px]", isNeg ? "text-red-500" : "text-emerald-600")}>
-                            {isNeg ? "-" : "+"}{Math.abs(tx.quantity)}
+                            {txType === "TRANSFER" ? "<->" : (isNeg ? "-" : "+")}{Math.abs(tx.quantity)}
                           </span>
                         </td>
                         <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">{tx.reference ?? "—"}</td>

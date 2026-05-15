@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Package, ArrowLeftRight, Truck,
-  Tag, Building2, Handshake, BarChart3, Settings, ExternalLink, ShoppingCart, BellRing,
+  Tag, Building2, Handshake, BarChart3, Settings, ExternalLink, ShoppingCart, BellRing, Warehouse,
 } from "lucide-react";
 import { canAdmin } from "@/lib/rbac";
 
@@ -22,6 +22,7 @@ export function DashboardSidebar({ role }: { role?: string }) {
         { href: "/dashboard/shipments",        label: "출고 요청",   icon: Truck           },
         { href: "/dashboard/purchase-orders",  label: "발주 관리",   icon: ShoppingCart    },
         { href: "/dashboard/alerts",           label: "재고 알림",   icon: BellRing        },
+        { href: "/dashboard/warehouses",       label: "Warehouses",   icon: Warehouse       },
       ],
     },
     {

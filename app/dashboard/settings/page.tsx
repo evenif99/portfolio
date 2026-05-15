@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Users } from "lucide-react";
+import { Users, Warehouse } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { canAdmin } from "@/lib/rbac";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -59,6 +59,15 @@ export default async function SettingsPage() {
         </SectionCard>
 
         <SectionCard title="창고 설정" subtitle="등록된 창고 목록">
+          <div className="mb-3 flex justify-end">
+            <Link
+              href="/dashboard/warehouses"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-semibold text-blue-600 hover:bg-muted"
+            >
+              <Warehouse className="h-3 w-3" />
+              Manage Warehouses
+            </Link>
+          </div>
           <ul className="space-y-3">
             {warehouses.map((w) => {
               const totalQty = w.items.reduce((s, i) => s + i.quantity, 0);

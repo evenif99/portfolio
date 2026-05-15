@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Package, Truck, AlertTriangle,
-  ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, ChevronRight,
+  ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, ArrowRightLeft, ChevronRight,
 } from "lucide-react";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ShipmentStatusBadge, PriorityBadge } from "@/components/shipments/ShipmentStatusBadge";
@@ -18,6 +18,7 @@ const TX_ICON = {
   OUTBOUND:   ArrowUpFromLine,
   ADJUSTMENT: RefreshCw,
   RETURN:     RotateCcw,
+  TRANSFER:   ArrowRightLeft,
 } as const;
 
 const TX_BG: Record<TransactionType, string> = {
@@ -25,6 +26,7 @@ const TX_BG: Record<TransactionType, string> = {
   OUTBOUND:   "bg-blue-50 text-blue-600 dark:bg-blue-950/40",
   ADJUSTMENT: "bg-violet-50 text-violet-600 dark:bg-violet-950/40",
   RETURN:     "bg-amber-50 text-amber-600 dark:bg-amber-950/40",
+  TRANSFER:   "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40",
 };
 
 function fmtTime(d: Date) {
@@ -180,6 +182,7 @@ export default async function DashboardPage() {
                 const type = tx.type as TransactionType;
                 const Icon = TX_ICON[type];
                 const isNeg = type === "OUTBOUND" || (type === "ADJUSTMENT" && tx.quantity < 0);
+                const isTransfer = type === "TRANSFER";
                 return (
                   <li key={tx.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
                     <div className={cn("flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md", TX_BG[type])}>
@@ -191,7 +194,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-shrink-0 text-right">
                       <p className={cn("text-[13px] font-bold tabular-nums", isNeg ? "text-red-500" : "text-emerald-600")}>
-                        {isNeg ? "-" : "+"}{Math.abs(tx.quantity)}
+                        {isTransfer ? "?" : (isNeg ? "-" : "+")}{Math.abs(tx.quantity)}
                       </p>
                       <p className="text-[10px] text-muted-foreground">{fmtTime(tx.createdAt)}</p>
                     </div>

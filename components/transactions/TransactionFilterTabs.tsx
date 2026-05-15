@@ -11,6 +11,7 @@ const TABS: { label: string; value: TransactionType | "" }[] = [
   { label: "출고", value: "OUTBOUND"   },
   { label: "조정", value: "ADJUSTMENT" },
   { label: "반품", value: "RETURN"     },
+  { label: "이동", value: "TRANSFER"   },
 ];
 
 interface TransactionFilterTabsProps {

@@ -86,8 +86,8 @@ export async function createItem(
   const { sku, name, modelName, categoryId, brandId, supplierId, warehouseId,
           quantity, safetyStock, unitPrice, imageUrl, notes } = parsed.data;
 
-  const existing = await prisma.inventoryItem.findUnique({ where: { sku } });
-  if (existing) return { message: `SKU '${sku}'는 이미 사용 중입니다.` };
+  const existing = await prisma.inventoryItem.findFirst({ where: { sku, warehouseId } });
+  if (existing) return { message: `?? ??? SKU '${sku}' ??? ?? ?????.` };
 
   const specs = parseSpecs(formData);
 
@@ -137,10 +137,12 @@ export async function updateItem(
   const { sku, name, modelName, categoryId, brandId, supplierId, warehouseId,
           safetyStock, unitPrice, imageUrl, notes } = parsed.data;
 
-  // SKU 중복 확인 (자신 제외)
-  if (sku !== item.sku) {
-    const dup = await prisma.inventoryItem.findUnique({ where: { sku } });
-    if (dup) return { message: `SKU '${sku}'는 이미 사용 중입니다.` };
+    // SKU ?? ?? (?? ?? ???? ???)
+  if (sku !== item.sku || warehouseId !== item.warehouseId) {
+    const dup = await prisma.inventoryItem.findFirst({
+      where: { sku, warehouseId, NOT: { id: itemId } },
+    });
+    if (dup) return { message: `?? ??? SKU '${sku}' ??? ?? ?????.` };
   }
 
   const specs = parseSpecs(formData);
@@ -154,7 +156,7 @@ export async function updateItem(
       unitPrice: unitPrice ?? null,
       imageUrl:  imageUrl  || null,
       notes:     notes     || null,
-      specs:     specs ?? Prisma.DbNull,   // 스펙 전체 삭제 시 DB null 클리어
+      specs:     specs ?? Prisma.DbNull, // specs ?? ?? ? DB null ??
       status:    calcStatus(item.quantity, safetyStock),
     },
   });

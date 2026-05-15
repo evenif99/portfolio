@@ -21,6 +21,7 @@ enum TransactionType {
   OUTBOUND
   ADJUSTMENT
   RETURN
+  TRANSFER
 }
 
 enum ShipmentStatus {
@@ -93,18 +94,21 @@ model Supplier {
 }
 
 model Warehouse {
-  id       Int             @id @default(autoincrement())
-  name     String
-  location String
-  zone     String?
-  items    InventoryItem[]
+  id             Int                @id @default(autoincrement())
+  name           String
+  location       String
+  zone           String?
+  capacity       Int                @default(5000)
+  items          InventoryItem[]
+  transferFromTx StockTransaction[] @relation("TransferFromWarehouse")
+  transferToTx   StockTransaction[] @relation("TransferToWarehouse")
 }
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 model InventoryItem {
   id             Int                 @id @default(autoincrement())
-  sku            String              @unique
+  sku            String
   name           String
   modelName      String
   categoryId     Int
@@ -129,21 +133,27 @@ model InventoryItem {
   purchaseOrderItems PurchaseOrderItem[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+
+  @@unique([sku, warehouseId])
 }
 
 // ─── Transactions ─────────────────────────────────────────────────────────────
 
 model StockTransaction {
-  id        Int             @id @default(autoincrement())
-  type      TransactionType
-  itemId    Int
-  item      InventoryItem   @relation(fields: [itemId], references: [id])
-  quantity  Int
-  userId    Int
-  user      User            @relation(fields: [userId], references: [id])
-  reference String?
-  notes     String?
-  createdAt DateTime        @default(now())
+  id              Int             @id @default(autoincrement())
+  type            TransactionType
+  itemId          Int
+  item            InventoryItem   @relation(fields: [itemId], references: [id])
+  quantity        Int
+  userId          Int
+  user            User            @relation(fields: [userId], references: [id])
+  transferFromId  Int?
+  transferFrom    Warehouse?      @relation("TransferFromWarehouse", fields: [transferFromId], references: [id])
+  transferToId    Int?
+  transferTo      Warehouse?      @relation("TransferToWarehouse", fields: [transferToId], references: [id])
+  reference       String?
+  notes           String?
+  createdAt       DateTime        @default(now())
 }
 
 // ─── Shipments ────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 // ─── Enums (mirror Prisma enums for client-side use) ──────────────────────────
 
 export type ItemStatus = "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "DISCONTINUED";
-export type TransactionType = "INBOUND" | "OUTBOUND" | "ADJUSTMENT" | "RETURN";
+export type TransactionType = "INBOUND" | "OUTBOUND" | "ADJUSTMENT" | "RETURN" | "TRANSFER";
 export type ShipmentStatus = "PENDING" | "APPROVED" | "PICKING" | "PACKED" | "SHIPPED" | "DELAYED" | "COMPLETED" | "CANCELLED";
 export type Priority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
 export type UserRole = "ADMIN" | "OPERATOR" | "VIEWER";

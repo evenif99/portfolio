@@ -30,6 +30,7 @@ export const TX_TYPE_LABEL: Record<TransactionType, string> = {
   OUTBOUND:   "출고",
   ADJUSTMENT: "조정",
   RETURN:     "반품",
+  TRANSFER:   "Transfer",
 };
 
 export const TX_TYPE_COLOR: Record<TransactionType, string> = {
@@ -37,6 +38,7 @@ export const TX_TYPE_COLOR: Record<TransactionType, string> = {
   OUTBOUND:   "bg-blue-50 text-blue-700 ring-blue-200",
   ADJUSTMENT: "bg-violet-50 text-violet-700 ring-violet-200",
   RETURN:     "bg-amber-50 text-amber-700 ring-amber-200",
+  TRANSFER:   "bg-cyan-50 text-cyan-700 ring-cyan-200",
 };
 
 export const TX_TYPE_SIGN: Record<TransactionType, string> = {
@@ -44,6 +46,7 @@ export const TX_TYPE_SIGN: Record<TransactionType, string> = {
   OUTBOUND:   "-",
   ADJUSTMENT: "±",
   RETURN:     "+",
+  TRANSFER:   "<->",
 };
 
 // ─── Shipment Status ──────────────────────────────────────────────────────────
