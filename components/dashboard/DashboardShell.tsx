@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { AutoRefresh } from "@/components/dashboard/AutoRefresh";
 
 interface DashboardShellProps {
   sidebar: React.ReactNode;
@@ -62,6 +63,7 @@ export function DashboardShell({ sidebar, topbar, children }: DashboardShellProp
           <div className="flex-1 min-w-0">{topbar}</div>
         </div>
         <main className="flex-1 overflow-y-auto">
+          <AutoRefresh />
           {children}
         </main>
       </div>

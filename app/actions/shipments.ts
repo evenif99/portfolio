@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canOperate } from "@/lib/rbac";
 
 // ─── createShipment ───────────────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ export async function createShipment(
 ): Promise<CreateShipmentState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canOperate(session.user.role)) return { message: "권한이 없습니다. (ADMIN/OPERATOR 전용)" };
 
   const parsed = CreateShipmentSchema.safeParse({
     requester:  formData.get("requester"),
@@ -95,6 +97,7 @@ export async function updateShipmentStatus(
 ): Promise<ShipmentActionState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canOperate(session.user.role)) return { message: "권한이 없습니다. (ADMIN/OPERATOR 전용)" };
 
   const parsed = UpdateStatusSchema.safeParse({
     shipmentId: Number(formData.get("shipmentId")),
@@ -118,40 +121,39 @@ export async function updateShipmentStatus(
   const isFirstShip = status === "SHIPPED" && !shipment.shippedAt;
   const shippedAt   = isFirstShip ? new Date() : undefined;
 
-  // SHIPPED 최초 전환 시 재고 자동 차감 (atomic)
+  // SHIPPED 최초 전환 시 재고 자동 차감 (atomic — 인터랙티브 트랜잭션)
   if (isFirstShip && shipment.items.length > 0) {
-    const ops: Parameters<typeof prisma.$transaction>[0] = [
-      prisma.shipment.update({
+    const userId = Number(session.user.id);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.shipment.update({
         where: { id: shipmentId },
         data: { status, shippedAt },
-      }),
-    ];
+      });
 
-    for (const si of shipment.items) {
-      const newQty    = Math.max(0, si.item.quantity - si.quantity);
-      const newStatus =
-        newQty === 0             ? "OUT_OF_STOCK" :
-        newQty < si.item.safetyStock ? "LOW_STOCK"    : "IN_STOCK";
+      for (const si of shipment.items) {
+        const newQty    = Math.max(0, si.item.quantity - si.quantity);
+        const newStatus =
+          newQty === 0                 ? "OUT_OF_STOCK" :
+          newQty < si.item.safetyStock ? "LOW_STOCK"    : "IN_STOCK";
 
-      ops.push(
-        prisma.stockTransaction.create({
+        await tx.stockTransaction.create({
           data: {
             type:      "OUTBOUND",
             itemId:    si.itemId,
             quantity:  -si.quantity,
-            userId:    Number(session.user.id),
+            userId,
             reference: shipment.shipmentNo,
             notes:     "출고 요청 자동 차감",
           },
-        }),
-        prisma.inventoryItem.update({
+        });
+
+        await tx.inventoryItem.update({
           where: { id: si.itemId },
           data:  { quantity: newQty, status: newStatus },
-        }),
-      );
-    }
-
-    await prisma.$transaction(ops);
+        });
+      }
+    });
 
     // 알림 처리 (트랜잭션 밖 — 조건부 upsert)
     for (const si of shipment.items) {

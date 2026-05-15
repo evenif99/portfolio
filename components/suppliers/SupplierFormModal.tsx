@@ -5,6 +5,7 @@ import { X, AlertCircle } from "lucide-react";
 import { createSupplier, updateSupplier } from "@/app/actions/suppliers";
 import type { SupplierFormState } from "@/app/actions/suppliers";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 export interface EditableSupplier {
   id:           number;
@@ -35,6 +36,10 @@ export function SupplierFormModal({ mode, supplier, trigger }: SupplierFormModal
 
   const errorMsg    = state && "message" in state ? state.message  : undefined;
   const fieldErrors = state && "errors"  in state ? state.errors   : undefined;
+
+  useActionToast(state, {
+    success: mode === "create" ? "공급업체가 등록되었습니다." : "공급업체 정보가 수정되었습니다.",
+  });
 
   useEffect(() => {
     if (state && "success" in state) {

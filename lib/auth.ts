@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/definitions";
 import { authConfig } from "@/lib/auth.config";
+import type { UserRole } from "@/lib/rbac";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -20,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const passwordMatch = await compare(password, user.password);
         if (!passwordMatch) return null;
 
-        return { id: String(user.id), name: user.name, email: user.email };
+        return { id: String(user.id), name: user.name, email: user.email, role: user.role as UserRole };
       },
     }),
   ],
@@ -28,11 +29,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id   = user.id;
+        token.role = user.role;
+      }
       return token;
     },
     session({ session, token }) {
-      if (token.id) session.user.id = token.id as string;
+      if (token.id)   session.user.id   = token.id   as string;
+      if (token.role) session.user.role = token.role as UserRole;
       return session;
     },
   },

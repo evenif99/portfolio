@@ -1,9 +1,17 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Users } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { canAdmin } from "@/lib/rbac";
 import { PageHeader } from "@/components/common/PageHeader";
 import { SectionCard } from "@/components/common/SectionCard";
 import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
+  const session = await auth();
+  if (!canAdmin(session?.user?.role)) redirect("/dashboard");
+
   const warehouses = await prisma.warehouse.findMany({
     orderBy: { name: "asc" },
     include: { items: { select: { quantity: true } } },
@@ -68,6 +76,20 @@ export default async function SettingsPage() {
               );
             })}
           </ul>
+        </SectionCard>
+
+        <SectionCard title="사용자 관리" subtitle="계정 및 역할을 관리합니다 (ADMIN 전용)">
+          <Link
+            href="/dashboard/settings/users"
+            className="flex items-center gap-3 rounded-md border border-border px-4 py-3 hover:bg-muted/40 transition-colors"
+          >
+            <Users className="h-4 w-4 text-blue-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-[13px] font-semibold text-foreground">사용자 목록 및 역할 관리</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">계정 생성·수정·삭제, ADMIN / OPERATOR / VIEWER 역할 부여</p>
+            </div>
+            <span className="text-[11px] text-muted-foreground">→</span>
+          </Link>
         </SectionCard>
 
         <div id="password">

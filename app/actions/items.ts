@@ -4,6 +4,8 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "../../generated/prisma/client/index.js";
+import { canAdmin } from "@/lib/rbac";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -75,6 +77,7 @@ export async function createItem(
 ): Promise<ItemFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const raw = parseFormData(formData);
   const parsed = ItemSchema.safeParse(raw);
@@ -118,6 +121,7 @@ export async function updateItem(
 ): Promise<ItemFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const itemId = Number(formData.get("itemId"));
   if (!itemId) return { message: "잘못된 요청입니다." };
@@ -150,7 +154,7 @@ export async function updateItem(
       unitPrice: unitPrice ?? null,
       imageUrl:  imageUrl  || null,
       notes:     notes     || null,
-      specs:     specs ?? null,   // undefined 대신 null → 스펙 전체 삭제 시 DB 클리어
+      specs:     specs ?? Prisma.DbNull,   // 스펙 전체 삭제 시 DB null 클리어
       status:    calcStatus(item.quantity, safetyStock),
     },
   });
@@ -169,6 +173,7 @@ export async function deleteItem(
 ): Promise<ItemFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const itemId = Number(formData.get("itemId"));
   if (!itemId) return { message: "잘못된 요청입니다." };

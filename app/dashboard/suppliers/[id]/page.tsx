@@ -10,6 +10,7 @@ import { InventoryStatusBadge } from "@/components/inventory/InventoryStatusBadg
 import { StockLevelBar } from "@/components/inventory/StockLevelBar";
 import { SupplierFormModal } from "@/components/suppliers/SupplierFormModal";
 import { DeleteSupplierButton } from "@/components/suppliers/DeleteSupplierButton";
+import { SupplierPriceSection } from "@/components/suppliers/SupplierPriceSection";
 import { prisma } from "@/lib/prisma";
 import { kstDateTimeString } from "@/lib/datetime";
 
@@ -21,7 +22,7 @@ export default async function SupplierDetailPage({
   const { id } = await params;
   const supplierId = Number(id);
 
-  const [supplier, inboundTx] = await Promise.all([
+  const [supplier, inboundTx, supplierPrices, allItems] = await Promise.all([
     prisma.supplier.findUnique({
       where: { id: supplierId },
       include: {
@@ -47,6 +48,16 @@ export default async function SupplierDetailPage({
         item: { select: { id: true, modelName: true, sku: true } },
         user: { select: { name: true } },
       },
+    }),
+    prisma.supplierItemPrice.findMany({
+      where: { supplierId },
+      orderBy: { updatedAt: "desc" },
+      include: { item: { select: { modelName: true, sku: true } } },
+    }),
+    prisma.inventoryItem.findMany({
+      where: { supplierId },
+      select: { id: true, modelName: true, sku: true },
+      orderBy: { modelName: "asc" },
     }),
   ]);
 
@@ -225,6 +236,23 @@ export default async function SupplierDetailPage({
             )}
           </SectionCard>
         </div>
+
+        {/* 단가 관리 */}
+        <SectionCard noPadding>
+          <SupplierPriceSection
+            supplierId={supplierId}
+            prices={supplierPrices.map((p) => ({
+              id:        p.id,
+              itemId:    p.itemId,
+              modelName: p.item.modelName,
+              sku:       p.item.sku,
+              unitPrice: p.unitPrice,
+              moq:       p.moq,
+              notes:     p.notes,
+            }))}
+            itemOptions={allItems}
+          />
+        </SectionCard>
 
         {/* 납품 이력 */}
         <SectionCard

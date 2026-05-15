@@ -4,6 +4,7 @@ import { useActionState, useState, useEffect, useRef } from "react";
 import { Plus, X, Trash2, AlertCircle } from "lucide-react";
 import { createShipment } from "@/app/actions/shipments";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,8 @@ export function CreateShipmentModal({ items }: CreateShipmentModalProps) {
 
   const errorMsg    = state && "message" in state ? state.message    : undefined;
   const fieldErrors = state && "errors"  in state ? state.errors     : undefined;
+
+  useActionToast(state, { success: "출고 요청이 생성되었습니다." });
 
   // 성공 시 모달 닫기
   useEffect(() => {

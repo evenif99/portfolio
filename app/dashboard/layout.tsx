@@ -10,8 +10,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
 
-  const [alertCount, recentTransactions, todayTxCount] = await Promise.all([
-    prisma.lowStockAlert.count({ where: { resolved: false } }),
+  const [alertItems, recentTransactions, todayTxCount] = await Promise.all([
+    prisma.lowStockAlert.findMany({
+      where:   { resolved: false },
+      orderBy: { createdAt: "desc" },
+      take:    8,
+      include: { item: { select: { sku: true, modelName: true, quantity: true, safetyStock: true } } },
+    }),
     prisma.stockTransaction.findMany({
       orderBy: { createdAt: "desc" },
       take:    10,
@@ -25,12 +30,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }),
   ])
 
+  const alertCount = alertItems.length
+
   return (
     <DashboardShell
-      sidebar={<DashboardSidebar />}
+      sidebar={<DashboardSidebar role={session.user.role} />}
       topbar={
         <DashboardTopBar
           alertCount={alertCount}
+          alertItems={alertItems}
           recentTransactions={recentTransactions}
           todayTxCount={todayTxCount}
           userName={session.user.name ?? "사용자"}

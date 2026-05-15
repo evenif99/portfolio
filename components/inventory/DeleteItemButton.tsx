@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, AlertTriangle, X } from "lucide-react";
 import { deleteItem } from "@/app/actions/items";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 interface DeleteItemButtonProps {
   itemId:    number;
@@ -20,12 +21,14 @@ export function DeleteItemButton({ itemId, itemName, hasTx, hasShipments }: Dele
 
   const canDelete = !hasTx && !hasShipments;
 
+  useActionToast(state, { success: "품목이 삭제되었습니다." });
+
   // 성공 시 목록으로 이동 (렌더 중 호출 금지 → useEffect)
   useEffect(() => {
     if (state && "success" in state) {
       router.push("/dashboard/inventory");
     }
-  }, [state]);
+  }, [state, router]);
 
   const errorMsg = state && "message" in state ? state.message : undefined;
 

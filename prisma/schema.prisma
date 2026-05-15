@@ -50,15 +50,16 @@ enum UserRole {
 // ─── Core Models ──────────────────────────────────────────────────────────────
 
 model User {
-  id           Int                @id @default(autoincrement())
-  name         String
-  email        String             @unique
-  password     String
-  role         UserRole           @default(OPERATOR)
-  transactions StockTransaction[]
-  shipments    Shipment[]
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id             Int               @id @default(autoincrement())
+  name           String
+  email          String            @unique
+  password       String
+  role           UserRole          @default(OPERATOR)
+  transactions   StockTransaction[]
+  shipments      Shipment[]
+  purchaseOrders PurchaseOrder[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Category {
@@ -76,17 +77,19 @@ model Brand {
 }
 
 model Supplier {
-  id           Int             @id @default(autoincrement())
-  name         String
-  contact      String?
-  email        String?
-  phone        String?
-  address      String?
-  leadTimeDays Int?
-  notes        String?
-  items        InventoryItem[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt @default(now())
+  id             Int                 @id @default(autoincrement())
+  name           String
+  contact        String?
+  email          String?
+  phone          String?
+  address        String?
+  leadTimeDays   Int?
+  notes          String?
+  items          InventoryItem[]
+  prices         SupplierItemPrice[]
+  purchaseOrders PurchaseOrder[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 }
 
 model Warehouse {
@@ -100,30 +103,32 @@ model Warehouse {
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 model InventoryItem {
-  id            Int                @id @default(autoincrement())
-  sku           String             @unique
-  name          String
-  modelName     String
-  categoryId    Int
-  category      Category           @relation(fields: [categoryId], references: [id])
-  brandId       Int
-  brand         Brand              @relation(fields: [brandId], references: [id])
-  supplierId    Int?
-  supplier      Supplier?          @relation(fields: [supplierId], references: [id])
-  warehouseId   Int
-  warehouse     Warehouse          @relation(fields: [warehouseId], references: [id])
-  quantity      Int                @default(0)
-  safetyStock   Int                @default(10)
-  unitPrice     Float?
-  status        ItemStatus         @default(IN_STOCK)
-  imageUrl      String?
-  specs         Json?
-  notes         String?
-  transactions  StockTransaction[]
-  shipmentItems ShipmentItem[]
-  alerts        LowStockAlert[]
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id             Int                 @id @default(autoincrement())
+  sku            String              @unique
+  name           String
+  modelName      String
+  categoryId     Int
+  category       Category            @relation(fields: [categoryId], references: [id])
+  brandId        Int
+  brand          Brand               @relation(fields: [brandId], references: [id])
+  supplierId     Int?
+  supplier       Supplier?           @relation(fields: [supplierId], references: [id])
+  warehouseId    Int
+  warehouse      Warehouse           @relation(fields: [warehouseId], references: [id])
+  quantity       Int                 @default(0)
+  safetyStock    Int                 @default(10)
+  unitPrice      Float?
+  status         ItemStatus          @default(IN_STOCK)
+  imageUrl       String?
+  specs          Json?
+  notes          String?
+  transactions   StockTransaction[]
+  shipmentItems  ShipmentItem[]
+  alerts         LowStockAlert[]
+  supplierPrices     SupplierItemPrice[]
+  purchaseOrderItems PurchaseOrderItem[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 // ─── Transactions ─────────────────────────────────────────────────────────────
@@ -178,4 +183,57 @@ model LowStockAlert {
   threshold Int
   resolved  Boolean       @default(false)
   createdAt DateTime      @default(now())
+}
+
+// ─── Purchase Orders ──────────────────────────────────────────────────────────
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id          Int                 @id @default(autoincrement())
+  orderNo     String              @unique
+  supplierId  Int
+  supplier    Supplier            @relation(fields: [supplierId], references: [id])
+  status      PurchaseOrderStatus @default(DRAFT)
+  orderedAt   DateTime?
+  expectedAt  DateTime?
+  receivedAt  DateTime?
+  createdById Int
+  createdBy   User                @relation(fields: [createdById], references: [id])
+  notes       String?
+  items       PurchaseOrderItem[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              Int           @id @default(autoincrement())
+  purchaseOrderId Int
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  itemId          Int
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+  quantity        Int
+  unitPrice       Float?
+  receivedQty     Int           @default(0)
+}
+
+// ─── Supplier Pricing ─────────────────────────────────────────────────────────
+
+model SupplierItemPrice {
+  id         Int           @id @default(autoincrement())
+  supplierId Int
+  supplier   Supplier      @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  itemId     Int
+  item       InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  unitPrice  Float
+  moq        Int?
+  notes      String?
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([supplierId, itemId])
 }

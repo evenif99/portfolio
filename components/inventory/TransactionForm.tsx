@@ -5,6 +5,7 @@ import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, CheckCircle2, A
 import { createTransaction } from "@/app/actions/inventory";
 import { cn } from "@/lib/utils";
 import type { TransactionType } from "@/lib/types";
+import { useActionToast } from "@/hooks/useActionToast";
 
 const TYPES: { value: TransactionType; label: string; icon: React.ElementType; color: string; activeColor: string; desc: string }[] = [
   {
@@ -57,6 +58,8 @@ export function TransactionForm({ itemId, currentQty, safetyStock }: Transaction
   const isSuccess = state && "success" in state;
   const errorMsg = state && "message" in state ? state.message : undefined;
   const fieldErrors = state && "errors" in state ? state.errors : undefined;
+
+  useActionToast(state, { success: "재고 이력이 등록되었습니다." });
 
   // ADJUSTMENT일 때 실제 formData에 넣을 quantity
   const adjustedQty = selectedType === "ADJUSTMENT" ? qty * adjSign : qty;

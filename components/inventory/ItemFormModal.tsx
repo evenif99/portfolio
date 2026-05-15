@@ -4,6 +4,7 @@ import { useActionState, useState, useEffect, useRef } from "react";
 import { Plus, X, Trash2, AlertCircle } from "lucide-react";
 import { createItem, updateItem } from "@/app/actions/items";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,10 @@ export function ItemFormModal({ mode, item, refData, trigger }: ItemFormModalPro
 
   const errorMsg   = state && "message" in state ? state.message : undefined;
   const fieldErrors = state && "errors"  in state ? state.errors  : undefined;
+
+  useActionToast(state, {
+    success: mode === "create" ? "품목이 등록되었습니다." : "품목이 수정되었습니다.",
+  });
 
   // 성공 시 모달 닫기 + 폼 초기화
   useEffect(() => {

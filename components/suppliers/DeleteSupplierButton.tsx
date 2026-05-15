@@ -6,6 +6,7 @@ import { Trash2, AlertTriangle, X } from "lucide-react";
 import { deleteSupplier } from "@/app/actions/suppliers";
 import type { SupplierFormState } from "@/app/actions/suppliers";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 interface DeleteSupplierButtonProps {
   supplierId:   number;
@@ -24,12 +25,14 @@ export function DeleteSupplierButton({
   const [isOpen, setIsOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<SupplierFormState, FormData>(deleteSupplier, undefined);
 
+  useActionToast(state, { success: "공급업체가 삭제되었습니다." });
+
   useEffect(() => {
     if (state && "success" in state) {
       if (redirectTo) router.push(redirectTo);
       else setIsOpen(false);
     }
-  }, [state]);
+  }, [state, redirectTo, router]);
 
   const errorMsg = state && "message" in state ? state.message : undefined;
 

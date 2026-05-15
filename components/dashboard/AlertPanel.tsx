@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { X, CheckCheck, AlertTriangle, Loader2 } from "lucide-react";
 import { resolveAlert, resolveAllAlerts } from "@/app/actions/alerts";
 import { cn } from "@/lib/utils";
+import { useActionToast } from "@/hooks/useActionToast";
 
 interface AlertItem {
   id: number;
@@ -20,7 +21,8 @@ interface AlertPanelProps {
 }
 
 function ResolveOneButton({ alertId }: { alertId: number }) {
-  const [, action, isPending] = useActionState(resolveAlert, undefined);
+  const [state, action, isPending] = useActionState(resolveAlert, undefined);
+  useActionToast(state, { success: "알림이 해제되었습니다." });
   return (
     <form action={action}>
       <input type="hidden" name="alertId" value={alertId} />
@@ -37,7 +39,8 @@ function ResolveOneButton({ alertId }: { alertId: number }) {
 }
 
 function ResolveAllButton() {
-  const [, action, isPending] = useActionState(resolveAllAlerts, undefined);
+  const [state, action, isPending] = useActionState(resolveAllAlerts, undefined);
+  useActionToast(state, { success: "모든 알림이 해제되었습니다." });
   return (
     <form action={action}>
       <button

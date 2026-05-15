@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canAdmin } from "@/lib/rbac";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ export async function createSupplier(
 ): Promise<SupplierFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const raw = parseFormData(formData);
   const parsed = SupplierSchema.safeParse(raw);
@@ -79,6 +81,7 @@ export async function updateSupplier(
 ): Promise<SupplierFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const supplierId = Number(formData.get("supplierId"));
   if (!supplierId) return { message: "잘못된 요청입니다." };
@@ -123,6 +126,7 @@ export async function deleteSupplier(
 ): Promise<SupplierFormState> {
   const session = await auth();
   if (!session?.user?.id) return { message: "로그인이 필요합니다." };
+  if (!canAdmin(session.user.role)) return { message: "권한이 없습니다. (ADMIN 전용)" };
 
   const supplierId = Number(formData.get("supplierId"));
   if (!supplierId) return { message: "잘못된 요청입니다." };

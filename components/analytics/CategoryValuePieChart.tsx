@@ -14,24 +14,37 @@ import {
 
 const COLORS = [
   "#3b82f6",
-  "#10b981",
   "#8b5cf6",
   "#f59e0b",
   "#ef4444",
-  "#ec4899",
   "#06b6d4",
   "#84cc16",
+  "#14b8a6",
+  "#a855f7",
 ];
 
 const MAX_SLICES = 6;
 const OTHERS_LABEL = "기타";
 
-export interface PiePoint {
+export interface CategoryValuePiePoint {
   name: string;
   value: number;
 }
 
-export function CategoryPieChart({ data }: { data: PiePoint[] }) {
+function formatKRW(value: number) {
+  return `₩${Math.round(value).toLocaleString()}`;
+}
+
+function formatCompactKRW(value: number) {
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+export function CategoryValuePieChart({ data }: { data: CategoryValuePiePoint[] }) {
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -70,9 +83,9 @@ export function CategoryPieChart({ data }: { data: PiePoint[] }) {
             innerRadius={48}
             outerRadius={78}
             paddingAngle={2}
+            stroke="none"
             startAngle={90}
             endAngle={-270}
-            stroke="none"
           >
             {chartData.map((entry, i) => (
               <Cell key={entry.name} fill={COLORS[i % COLORS.length]} />
@@ -87,8 +100,8 @@ export function CategoryPieChart({ data }: { data: PiePoint[] }) {
               color: "hsl(var(--foreground))",
             }}
             formatter={(value: number, name: string) => {
-              const ratio = total > 0 ? Math.round((value / total) * 100) : 0;
-              return [`${value.toLocaleString()}개 (${ratio}%)`, name];
+              const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+              return [`${formatKRW(value)} (${pct}%)`, name];
             }}
           />
         </PieChart>
@@ -96,9 +109,9 @@ export function CategoryPieChart({ data }: { data: PiePoint[] }) {
 
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[10px] text-muted-foreground">총 재고 수량</p>
+          <p className="text-[10px] text-muted-foreground">총 재고 가치</p>
           <p className="text-[13px] font-bold tabular-nums text-foreground">
-            {total.toLocaleString()}개
+            {formatCompactKRW(total)}
           </p>
         </div>
       </div>
@@ -115,8 +128,8 @@ export function CategoryPieChart({ data }: { data: PiePoint[] }) {
         </DialogTrigger>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>카테고리별 재고 분포 상세</DialogTitle>
-            <DialogDescription>수량 기준 비중과 랭킹을 확인할 수 있습니다.</DialogDescription>
+            <DialogTitle>카테고리별 재고 가치 분포 상세</DialogTitle>
+            <DialogDescription>수량 × 단가 기준 비중과 랭킹을 확인할 수 있습니다.</DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
             {topRows.map((row, i) => {
@@ -128,7 +141,7 @@ export function CategoryPieChart({ data }: { data: PiePoint[] }) {
                       {i + 1}. {row.name}
                     </p>
                     <p className="shrink-0 text-[12px] font-bold tabular-nums text-blue-600">
-                      {row.value.toLocaleString()}개
+                      {formatKRW(row.value)}
                     </p>
                   </div>
                   <p className="mb-1 text-[10px] text-muted-foreground">{pct.toFixed(1)}%</p>

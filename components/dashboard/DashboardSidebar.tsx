@@ -5,39 +5,42 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Package, ArrowLeftRight, Truck,
-  Tag, Building2, Handshake, BarChart3, Settings, ExternalLink,
+  Tag, Building2, Handshake, BarChart3, Settings, ExternalLink, ShoppingCart, BellRing,
 } from "lucide-react";
+import { canAdmin } from "@/lib/rbac";
 
-const navGroups = [
-  {
-    label: "운영",
-    items: [
-      { href: "/dashboard",              label: "대시보드",    icon: LayoutDashboard },
-      { href: "/dashboard/inventory",    label: "재고 관리",   icon: Package         },
-      { href: "/dashboard/transactions", label: "입출고 이력", icon: ArrowLeftRight  },
-      { href: "/dashboard/shipments",    label: "출고 요청",   icon: Truck           },
-    ],
-  },
-  {
-    label: "분류",
-    items: [
-      { href: "/dashboard/categories", label: "카테고리",  icon: Tag       },
-      { href: "/dashboard/brands",     label: "브랜드",    icon: Building2 },
-      { href: "/dashboard/suppliers",  label: "공급업체",  icon: Handshake },
-    ],
-  },
-  {
-    label: "분석 / 설정",
-    items: [
-      { href: "/dashboard/analytics", label: "분석",       icon: BarChart3    },
-      { href: "/dashboard/settings",  label: "설정",       icon: Settings     },
-      { href: "/",                    label: "공개 페이지", icon: ExternalLink },
-    ],
-  },
-];
-
-export function DashboardSidebar() {
+export function DashboardSidebar({ role }: { role?: string }) {
   const pathname = usePathname();
+
+  const navGroups = [
+    {
+      label: "운영",
+      items: [
+        { href: "/dashboard",                  label: "대시보드",    icon: LayoutDashboard },
+        { href: "/dashboard/inventory",        label: "재고 관리",   icon: Package         },
+        { href: "/dashboard/transactions",     label: "입출고 이력", icon: ArrowLeftRight  },
+        { href: "/dashboard/shipments",        label: "출고 요청",   icon: Truck           },
+        { href: "/dashboard/purchase-orders",  label: "발주 관리",   icon: ShoppingCart    },
+        { href: "/dashboard/alerts",           label: "재고 알림",   icon: BellRing        },
+      ],
+    },
+    {
+      label: "분류",
+      items: [
+        { href: "/dashboard/categories", label: "카테고리",  icon: Tag       },
+        { href: "/dashboard/brands",     label: "브랜드",    icon: Building2 },
+        { href: "/dashboard/suppliers",  label: "공급업체",  icon: Handshake },
+      ],
+    },
+    {
+      label: "분석 / 설정",
+      items: [
+        { href: "/dashboard/analytics", label: "분석",        icon: BarChart3    },
+        ...(canAdmin(role) ? [{ href: "/dashboard/settings", label: "설정", icon: Settings }] : []),
+        { href: "/",                    label: "공개 페이지", icon: ExternalLink },
+      ],
+    },
+  ];
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname.startsWith(href);

@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useActionState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/lib/theme-context";
 import {
   Bell, AlertTriangle, LogOut, Sun, Moon, Monitor, KeyRound, User,
-  ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw,
+  ArrowDownToLine, ArrowUpFromLine, RefreshCw, RotateCcw, CheckCheck, X, Loader2,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import { resolveAlert } from "@/app/actions/alerts";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/datetime";
+import { useActionToast } from "@/hooks/useActionToast";
 
 // ── 트랜잭션 타입 메타 ──────────────────────────────────────────────────────
 const TX_META = {
@@ -32,16 +34,42 @@ interface TxItem {
   user: { name: string | null };
 }
 
+interface AlertItem {
+  id:   number;
+  item: { sku: string; modelName: string; quantity: number; safetyStock: number };
+}
+
 interface DashboardTopBarProps {
   alertCount:         number;
+  alertItems:         AlertItem[];
   recentTransactions: TxItem[];
   todayTxCount:       number;
   userName:           string;
   userEmail?:         string;
 }
 
+// ── 개별 알림 해제 버튼 ─────────────────────────────────────────────────────
+function QuickResolveButton({ alertId }: { alertId: number }) {
+  const [state, action, isPending] = useActionState(resolveAlert, undefined);
+  useActionToast(state, { success: "알림 해제됨" });
+  return (
+    <form action={action}>
+      <input type="hidden" name="alertId" value={alertId} />
+      <button
+        type="submit"
+        disabled={isPending}
+        title="알림 해제"
+        className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30 transition-colors disabled:opacity-40"
+      >
+        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
+      </button>
+    </form>
+  );
+}
+
 export function DashboardTopBar({
   alertCount,
+  alertItems,
   recentTransactions,
   todayTxCount,
   userName,
@@ -51,11 +79,17 @@ export function DashboardTopBar({
   const hasAlerts = alertCount > 0;
   const hasTx     = recentTransactions.length > 0;
 
-  const [bellOpen, setBellOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
+  const [bellOpen, setBellOpen]   = useState(false);
+  const [userOpen, setUserOpen]   = useState(false);
+  const [bellTab,  setBellTab]    = useState<"alerts" | "history">("alerts");
   const bellRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
+
+  // 알림이 있으면 알림 탭을, 없으면 이력 탭을 기본으로
+  useEffect(() => {
+    if (bellOpen) setBellTab(alertCount > 0 ? "alerts" : "history");
+  }, [bellOpen, alertCount]);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -66,15 +100,22 @@ export function DashboardTopBar({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // 벨 배지: 알림이 있으면 알림 수, 없으면 오늘 이력 수
+  const bellBadge = alertCount > 0 ? alertCount : todayTxCount > 0 ? todayTxCount : 0;
+  const bellBadgeColor = alertCount > 0 ? "bg-red-500" : "bg-blue-500";
+
   return (
     <header className="flex h-12 flex-shrink-0 items-center justify-end bg-card px-4 gap-1">
 
       {/* 재고 상태 배지 */}
       {hasAlerts ? (
-        <div className="hidden sm:flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400 mr-1">
+        <Link
+          href="/dashboard/alerts"
+          className="hidden sm:flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:text-amber-400 mr-1 hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-colors"
+        >
           <AlertTriangle className="h-3 w-3" />
           재고 부족 {alertCount}건
-        </div>
+        </Link>
       ) : (
         <div className="hidden sm:flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 mr-1">
           재고 정상
@@ -88,99 +129,169 @@ export function DashboardTopBar({
           className="relative flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Bell className="h-4 w-4" />
-          {todayTxCount > 0 && (
-            <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-blue-500 text-[8px] font-bold text-white tabular-nums">
-              {todayTxCount > 99 ? "99+" : todayTxCount}
+          {bellBadge > 0 && (
+            <span className={cn(
+              "absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold text-white tabular-nums",
+              bellBadgeColor,
+            )}>
+              {bellBadge > 99 ? "99+" : bellBadge}
             </span>
           )}
         </button>
 
         {bellOpen && (
           <div className="absolute right-0 top-full mt-1.5 w-80 rounded-lg border border-border bg-card shadow-lg z-50">
-            {/* 헤더 */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold text-foreground">입출고 이력</span>
-                {todayTxCount > 0 && (
-                  <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-[10px] font-bold text-white tabular-nums leading-none">
-                    오늘 {todayTxCount}건
+
+            {/* 탭 헤더 */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => setBellTab("alerts")}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 text-[12px] font-semibold transition-colors",
+                  bellTab === "alerts"
+                    ? "border-b-2 border-amber-500 text-amber-600 dark:text-amber-400"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <AlertTriangle className="h-3.5 w-3.5" />
+                재고 알림
+                {alertCount > 0 && (
+                  <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">
+                    {alertCount}
                   </span>
                 )}
-              </div>
-              <Link
-                href="/dashboard/transactions"
-                onClick={() => setBellOpen(false)}
-                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              </button>
+              <button
+                onClick={() => setBellTab("history")}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 text-[12px] font-semibold transition-colors",
+                  bellTab === "history"
+                    ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                전체 보기 →
-              </Link>
+                <RefreshCw className="h-3.5 w-3.5" />
+                입출고 이력
+                {todayTxCount > 0 && (
+                  <span className="rounded-full bg-blue-500 px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">
+                    오늘 {todayTxCount}
+                  </span>
+                )}
+              </button>
             </div>
 
-            {/* 목록 */}
+            {/* 탭 콘텐츠 */}
             <div className="max-h-[360px] overflow-y-auto">
-              {!hasTx ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Bell className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                  <p className="text-[12px] font-semibold text-foreground">입출고 이력 없음</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">아직 처리된 재고 변동이 없습니다</p>
-                </div>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {recentTransactions.map((tx) => {
-                    const type = (TX_META[tx.type as TxType] ? tx.type : "ADJUSTMENT") as TxType;
-                    const meta = TX_META[type];
-                    const Icon = meta.Icon;
-                    const isNeg = tx.type === "OUTBOUND" || (tx.type === "ADJUSTMENT" && tx.quantity < 0);
-                    const qtyDisplay = tx.type === "ADJUSTMENT"
-                      ? (tx.quantity >= 0 ? `+${tx.quantity}` : String(tx.quantity))
-                      : `${isNeg ? "-" : "+"}${Math.abs(tx.quantity)}`;
 
-                    return (
-                      <li key={tx.id} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
-                        {/* 타입 아이콘 */}
-                        <div className={cn(
-                          "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md mt-0.5",
-                          meta.bg,
-                        )}>
-                          <Icon className={cn("h-3.5 w-3.5", meta.color)} />
-                        </div>
+              {bellTab === "alerts" && (
+                <>
+                  {alertItems.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <CheckCheck className="h-8 w-8 text-emerald-400 mb-2" />
+                      <p className="text-[12px] font-semibold text-foreground">부족 재고 없음</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">모든 품목이 안전재고 이상입니다</p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {alertItems.map((a) => {
+                        const isOut = a.item.quantity === 0;
+                        return (
+                          <li key={a.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
+                            <AlertTriangle className={cn("h-3.5 w-3.5 flex-shrink-0", isOut ? "text-red-500" : "text-amber-500")} />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[12px] font-semibold text-foreground truncate">{a.item.modelName}</p>
+                              <p className="text-[10px] font-mono text-muted-foreground">
+                                {a.item.sku} · {isOut ? "품절" : `${a.item.quantity}/${a.item.safetyStock}`}
+                              </p>
+                            </div>
+                            <QuickResolveButton alertId={a.id} />
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                  <div className="border-t border-border px-4 py-2.5 flex items-center justify-between">
+                    <Link
+                      href="/dashboard/alerts"
+                      onClick={() => setBellOpen(false)}
+                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      전체 알림 보기 →
+                    </Link>
+                  </div>
+                </>
+              )}
 
-                        {/* 내용 */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-[12px] font-semibold text-foreground truncate leading-tight">
-                              {tx.item.modelName}
-                            </p>
-                            <span className={cn(
-                              "flex-shrink-0 text-[13px] font-bold tabular-nums",
-                              isNeg ? "text-red-500" : "text-emerald-600",
-                              tx.type === "ADJUSTMENT" && tx.quantity === 0 && "text-muted-foreground",
+              {bellTab === "history" && (
+                <>
+                  {!hasTx ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Bell className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                      <p className="text-[12px] font-semibold text-foreground">입출고 이력 없음</p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {recentTransactions.map((tx) => {
+                        const type = (TX_META[tx.type as TxType] ? tx.type : "ADJUSTMENT") as TxType;
+                        const meta = TX_META[type];
+                        const Icon = meta.Icon;
+                        const isNeg = tx.type === "OUTBOUND" || (tx.type === "ADJUSTMENT" && tx.quantity < 0);
+                        const qtyDisplay = tx.type === "ADJUSTMENT"
+                          ? (tx.quantity >= 0 ? `+${tx.quantity}` : String(tx.quantity))
+                          : `${isNeg ? "-" : "+"}${Math.abs(tx.quantity)}`;
+
+                        return (
+                          <li key={tx.id} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
+                            <div className={cn(
+                              "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md mt-0.5",
+                              meta.bg,
                             )}>
-                              {qtyDisplay}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            <span className={cn("text-[10px] font-semibold", meta.color)}>{meta.label}</span>
-                            <span className="text-muted-foreground/40">·</span>
-                            <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[80px]">
-                              {tx.item.sku}
-                            </span>
-                            {tx.reference && (
-                              <>
+                              <Icon className={cn("h-3.5 w-3.5", meta.color)} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-[12px] font-semibold text-foreground truncate leading-tight">
+                                  {tx.item.modelName}
+                                </p>
+                                <span className={cn(
+                                  "flex-shrink-0 text-[13px] font-bold tabular-nums",
+                                  isNeg ? "text-red-500" : "text-emerald-600",
+                                  tx.type === "ADJUSTMENT" && tx.quantity === 0 && "text-muted-foreground",
+                                )}>
+                                  {qtyDisplay}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                                <span className={cn("text-[10px] font-semibold", meta.color)}>{meta.label}</span>
                                 <span className="text-muted-foreground/40">·</span>
-                                <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{tx.reference}</span>
-                              </>
-                            )}
-                            <span className="text-muted-foreground/40">·</span>
-                            <span className="text-[10px] text-muted-foreground">{tx.user.name ?? "—"}</span>
-                            <span className="text-muted-foreground/40">·</span>
-                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">{timeAgo(tx.createdAt)}</span>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                                <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[80px]">
+                                  {tx.item.sku}
+                                </span>
+                                {tx.reference && (
+                                  <>
+                                    <span className="text-muted-foreground/40">·</span>
+                                    <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{tx.reference}</span>
+                                  </>
+                                )}
+                                <span className="text-muted-foreground/40">·</span>
+                                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{timeAgo(tx.createdAt)}</span>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                  <div className="border-t border-border px-4 py-2.5">
+                    <Link
+                      href="/dashboard/transactions"
+                      onClick={() => setBellOpen(false)}
+                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      전체 이력 보기 →
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
           </div>

@@ -6,6 +6,7 @@ import { updateShipmentStatus } from "@/app/actions/shipments";
 import { SHIPMENT_STATUS_LABEL, SHIPMENT_STATUS_COLOR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ShipmentStatus } from "@/lib/types";
+import { useActionToast } from "@/hooks/useActionToast";
 
 // 현재 상태에서 전환 가능한 다음 상태 목록
 const NEXT_STATUS: Record<ShipmentStatus, ShipmentStatus[]> = {
@@ -28,6 +29,8 @@ export function ShipmentStatusChanger({ shipmentId, currentStatus }: ShipmentSta
   const [state, action, isPending] = useActionState(updateShipmentStatus, undefined);
   const formRef = useRef<HTMLFormElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
+
+  useActionToast(state, { success: "출고 상태가 변경되었습니다." });
 
   const nextOptions = NEXT_STATUS[currentStatus];
   const isTerminal = nextOptions.length === 0;
