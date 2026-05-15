@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import {
   CommandDialog,
   CommandInput,
@@ -100,12 +101,23 @@ export function GlobalSearchCommand() {
 
   return (
     <>
+      {/* 모바일: 아이콘만 */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden md:inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+        className="inline-flex md:hidden h-10 w-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors"
+        aria-label="검색"
       >
-        Search
+        <Search className="h-4 w-4" />
+      </button>
+      {/* 데스크탑: 텍스트 + 단축키 */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="hidden md:inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
+      >
+        <Search className="h-3.5 w-3.5" />
+        검색
         <span className="rounded border border-border px-1.5 py-0.5 text-[10px]">Cmd+K</span>
       </button>
 

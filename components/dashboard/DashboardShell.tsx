@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AutoRefresh } from "@/components/dashboard/AutoRefresh";
 import { GlobalSearchCommand } from "@/components/search/GlobalSearchCommand";
@@ -47,6 +47,14 @@ export function DashboardShell({ sidebar, topbar, children }: DashboardShellProp
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
+        {/* 모바일 닫기 버튼 */}
+        <button
+          className="absolute top-3 right-3 z-50 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="메뉴 닫기"
+        >
+          <X className="h-4 w-4" />
+        </button>
         {sidebar}
       </div>
 
@@ -60,7 +68,7 @@ export function DashboardShell({ sidebar, topbar, children }: DashboardShellProp
             <Menu className="h-5 w-5" />
           </button>
 
-          <div className="hidden md:block pl-2">
+          <div className="pl-1">
             <GlobalSearchCommand />
           </div>
 

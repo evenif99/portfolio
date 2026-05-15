@@ -74,7 +74,7 @@ export function DashboardSidebar({ role }: { role?: string }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors mb-0.5",
+                    "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] transition-colors mb-0.5",
                     active
                       ? "bg-blue-600 text-white font-semibold shadow-sm"
                       : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",

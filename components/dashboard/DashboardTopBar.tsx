@@ -59,7 +59,7 @@ function QuickResolveButton({ alertId }: { alertId: number }) {
         type="submit"
         disabled={isPending}
         title="알림 해제"
-        className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30 transition-colors disabled:opacity-40"
+        className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30 transition-colors disabled:opacity-40"
       >
         {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
       </button>
@@ -126,7 +126,7 @@ export function DashboardTopBar({
       <div className="relative" ref={bellRef}>
         <button
           onClick={() => { setBellOpen((v) => !v); setUserOpen(false); }}
-          className="relative flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="relative flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <Bell className="h-4 w-4" />
           {bellBadge > 0 && (
@@ -140,7 +140,7 @@ export function DashboardTopBar({
         </button>
 
         {bellOpen && (
-          <div className="absolute right-0 top-full mt-1.5 w-80 rounded-lg border border-border bg-card shadow-lg z-50">
+          <div className="absolute right-0 top-full mt-1.5 w-80 max-w-[calc(100vw-1rem)] rounded-lg border border-border bg-card shadow-lg z-50">
 
             {/* 탭 헤더 */}
             <div className="flex border-b border-border">
@@ -181,7 +181,7 @@ export function DashboardTopBar({
             </div>
 
             {/* 탭 콘텐츠 */}
-            <div className="max-h-[360px] overflow-y-auto">
+            <div className="max-h-[min(360px,60vh)] overflow-y-auto">
 
               {bellTab === "alerts" && (
                 <>
@@ -305,7 +305,7 @@ export function DashboardTopBar({
       <div className="relative" ref={userRef}>
         <button
           onClick={() => { setUserOpen((v) => !v); setBellOpen(false); }}
-          className="flex items-center gap-1 rounded-md border border-border px-2 py-1 hover:bg-muted transition-colors"
+          className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1.5 hover:bg-muted transition-colors min-h-[40px]"
         >
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
             {initial}
