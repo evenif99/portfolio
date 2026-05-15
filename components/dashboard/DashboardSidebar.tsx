@@ -49,7 +49,7 @@ export function DashboardSidebar({ role }: { role?: string }) {
   return (
     <aside className="flex h-full w-56 flex-col border-r border-sidebar-border bg-sidebar flex-shrink-0">
       {/* Brand */}
-      <div className="flex h-12 flex-shrink-0 items-center gap-2.5 border-b border-sidebar-border px-4">
+      <Link href="/" className="flex h-12 flex-shrink-0 items-center gap-2.5 border-b border-sidebar-border px-4 hover:bg-sidebar-accent transition-colors">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600">
           <span className="text-[9px] font-black tracking-tight text-white">PF</span>
         </div>
@@ -57,7 +57,7 @@ export function DashboardSidebar({ role }: { role?: string }) {
           <p className="text-[13px] font-bold tracking-tight text-sidebar-foreground">PartsFlow</p>
           <p className="text-[9px] font-medium text-sidebar-foreground/40 uppercase tracking-widest">재고 관리</p>
         </div>
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2">
