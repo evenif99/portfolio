@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AutoRefresh } from "@/components/dashboard/AutoRefresh";
+import { GlobalSearchCommand } from "@/components/search/GlobalSearchCommand";
 
 interface DashboardShellProps {
   sidebar: React.ReactNode;
@@ -32,6 +33,10 @@ export function DashboardShell({ sidebar, topbar, children }: DashboardShellProp
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      <div className="fixed right-4 top-3 z-50">
+        <GlobalSearchCommand />
+      </div>
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
