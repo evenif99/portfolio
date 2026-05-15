@@ -98,6 +98,12 @@ export default async function SupplierDetailPage({
             )}
           </div>
           <div className="flex items-center gap-2">
+            <a
+              href={`/api/export/suppliers/prices?supplierId=${supplier.id}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              Price Export
+            </a>
             <SupplierFormModal
               mode="edit"
               supplier={editableSupplier}

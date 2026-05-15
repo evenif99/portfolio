@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -50,9 +50,10 @@ export function WeeklyTrendChart({ data }: { data: TrendPoint[] }) {
           cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1 }}
         />
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} iconType="circle" iconSize={8} />
-        <Area dataKey="입고" type="monotone" stroke="#10b981" strokeWidth={2} fill="url(#gradIn)"  dot={false} />
-        <Area dataKey="출고" type="monotone" stroke="#3b82f6" strokeWidth={2} fill="url(#gradOut)" dot={false} />
+        <Area dataKey="inbound" type="monotone" stroke="#10b981" strokeWidth={2} fill="url(#gradIn)"  dot={false} />
+        <Area dataKey="outbound" type="monotone" stroke="#3b82f6" strokeWidth={2} fill="url(#gradOut)" dot={false} />
       </AreaChart>
     </ResponsiveContainer>
   );
 }
+

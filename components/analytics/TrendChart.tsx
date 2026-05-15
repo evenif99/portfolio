@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -8,8 +8,8 @@ import {
 
 export interface TrendPoint {
   date: string;
-  입고: number;
-  출고: number;
+  inbound: number;
+  outbound: number;
 }
 
 export function TrendChart({ data }: { data: TrendPoint[] }) {
@@ -49,9 +49,10 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
           iconType="circle"
           iconSize={8}
         />
-        <Bar dataKey="입고" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={18} />
-        <Bar dataKey="출고" fill="#3b82f6" radius={[3, 3, 0, 0]} maxBarSize={18} />
+        <Bar dataKey="inbound" fill="#10b981" radius={[3, 3, 0, 0]} maxBarSize={18} />
+        <Bar dataKey="outbound" fill="#3b82f6" radius={[3, 3, 0, 0]} maxBarSize={18} />
       </BarChart>
     </ResponsiveContainer>
   );
 }
+

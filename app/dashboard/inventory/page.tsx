@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { Package, Plus } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
@@ -23,14 +23,16 @@ export default async function InventoryPage({ searchParams }: PageProps) {
 
   const where = {
     AND: [
-      search ? {
-        OR: [
-          { sku:       { contains: search, mode: "insensitive" as const } },
-          { name:      { contains: search, mode: "insensitive" as const } },
-          { modelName: { contains: search, mode: "insensitive" as const } },
-        ],
-      } : {},
-      status     ? { status:     status     as any } : {},
+      search
+        ? {
+            OR: [
+              { sku: { contains: search, mode: "insensitive" as const } },
+              { name: { contains: search, mode: "insensitive" as const } },
+              { modelName: { contains: search, mode: "insensitive" as const } },
+            ],
+          }
+        : {},
+      status ? { status: status as any } : {},
       categoryIdNum > 0 ? { categoryId: categoryIdNum } : {},
     ],
   };
@@ -41,11 +43,11 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     prisma.inventoryItem.findMany({
       where,
       orderBy: { sku: "asc" },
-      skip:    (page - 1) * PAGE_SIZE,
-      take:    PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       include: {
-        category:  { select: { name: true } },
-        brand:     { select: { name: true } },
+        category: { select: { name: true } },
+        brand: { select: { name: true } },
         warehouse: { select: { name: true } },
       },
     }),
@@ -61,12 +63,16 @@ export default async function InventoryPage({ searchParams }: PageProps) {
     <div className="flex flex-col">
       <PageHeader
         title="재고 관리"
-        subtitle={`전체 ${totalCount}개 SKU`}
+        subtitle={`전체 ${totalCount.toLocaleString()}개 SKU`}
         action={
           <div className="flex items-center gap-2">
-            <ExportCsvButton
-              href={`/api/export/inventory?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`}
-            />
+            <ExportCsvButton href={`/api/export/inventory?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`} />
+            <a
+              href={`/api/export/inventory/excel?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              Excel Export
+            </a>
             <ItemFormModal
               mode="create"
               refData={refData}
@@ -88,7 +94,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Package className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-sm font-semibold text-foreground">검색 결과가 없습니다</p>
-            <p className="text-[12px] text-muted-foreground mt-1">검색어 또는 필터를 변경해 보세요</p>
+            <p className="text-[12px] text-muted-foreground mt-1">검색어 또는 필터를 변경해 보세요.</p>
           </div>
         ) : (
           <>
@@ -101,7 +107,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">품목명</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">카테고리</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">브랜드</th>
-                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">재고 현황</th>
+                    <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">재고 수준</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">안전재고</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">창고</th>
                     <th className="px-4 py-3 text-left font-semibold text-muted-foreground whitespace-nowrap">상태</th>
@@ -145,7 +151,7 @@ export default async function InventoryPage({ searchParams }: PageProps) {
                         <InventoryStatusBadge status={item.status as any} size="sm" />
                       </td>
                       <td className="px-4 py-3 text-right font-semibold tabular-nums text-foreground">
-                        {item.unitPrice != null ? `₩${item.unitPrice.toLocaleString()}` : "—"}
+                        {item.unitPrice != null ? `₩${item.unitPrice.toLocaleString()}` : "-"}
                       </td>
                     </tr>
                   ))}
@@ -153,10 +159,9 @@ export default async function InventoryPage({ searchParams }: PageProps) {
               </table>
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between">
               <p className="text-[11px] text-muted-foreground tabular-nums">
-                {filteredCount}개 중 {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredCount)}번째
+                {filteredCount.toLocaleString()}개 중 {(page - 1) * PAGE_SIZE + 1}~{Math.min(page * PAGE_SIZE, filteredCount)}
               </p>
               <Pagination total={filteredCount} page={page} pageSize={PAGE_SIZE} />
             </div>

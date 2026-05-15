@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ import type { POFormState } from "@/app/actions/purchaseOrders";
 import { cn } from "@/lib/utils";
 import { useActionToast } from "@/hooks/useActionToast";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ??? Types ????????????????????????????????????????????????????????????????????
 
 export interface POItemRow {
   id:          number;
@@ -27,7 +27,7 @@ export interface POItemRow {
 
 type POStatus = "DRAFT" | "ORDERED" | "RECEIVED" | "CANCELLED";
 
-// ─── ConfirmButton ────────────────────────────────────────────────────────────
+// ??? ConfirmButton ????????????????????????????????????????????????????????????
 
 function ConfirmButton({ orderId }: { orderId: number }) {
   const [state, formAction, isPending] = useActionState<POFormState, FormData>(
@@ -35,7 +35,7 @@ function ConfirmButton({ orderId }: { orderId: number }) {
   );
   const errorMsg = state && "message" in state ? state.message : undefined;
 
-  useActionToast(state, { success: "발주가 확정되었습니다." });
+  useActionToast(state, { success: "諛쒖＜媛 ?뺤젙?섏뿀?듬땲??" });
 
   return (
     <div className="space-y-1">
@@ -45,7 +45,7 @@ function ConfirmButton({ orderId }: { orderId: number }) {
           type="submit"
           disabled={isPending}
           onClick={(e) => {
-            if (!confirm("발주를 확정하면 품목/수량을 수정할 수 없습니다. 확정하시겠습니까?")) e.preventDefault();
+            if (!confirm("諛쒖＜瑜??뺤젙?섎㈃ ?덈ぉ/?섎웾???섏젙?????놁뒿?덈떎. ?뺤젙?섏떆寃좎뒿?덇퉴?")) e.preventDefault();
           }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold text-white transition-colors",
@@ -53,7 +53,7 @@ function ConfirmButton({ orderId }: { orderId: number }) {
           )}
         >
           <CheckCircle2 className="h-4 w-4" />
-          {isPending ? "처리 중..." : "발주 확정"}
+          {isPending ? "泥섎━ 以?.." : "諛쒖＜ ?뺤젙"}
         </button>
       </form>
       {errorMsg && <p className="text-[11px] text-red-500">{errorMsg}</p>}
@@ -61,7 +61,7 @@ function ConfirmButton({ orderId }: { orderId: number }) {
   );
 }
 
-// ─── CancelButton ─────────────────────────────────────────────────────────────
+// ??? CancelButton ?????????????????????????????????????????????????????????????
 
 function CancelButton({ orderId }: { orderId: number }) {
   const [state, formAction, isPending] = useActionState<POFormState, FormData>(
@@ -69,7 +69,7 @@ function CancelButton({ orderId }: { orderId: number }) {
   );
   const errorMsg = state && "message" in state ? state.message : undefined;
 
-  useActionToast(state, { success: "발주가 취소되었습니다." });
+  useActionToast(state, { success: "諛쒖＜媛 痍⑥냼?섏뿀?듬땲??" });
 
   return (
     <div className="space-y-1">
@@ -79,7 +79,7 @@ function CancelButton({ orderId }: { orderId: number }) {
           type="submit"
           disabled={isPending}
           onClick={(e) => {
-            if (!confirm("발주서를 취소하시겠습니까?")) e.preventDefault();
+            if (!confirm("諛쒖＜?쒕? 痍⑥냼?섏떆寃좎뒿?덇퉴?")) e.preventDefault();
           }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors",
@@ -87,7 +87,7 @@ function CancelButton({ orderId }: { orderId: number }) {
           )}
         >
           <XCircle className="h-4 w-4" />
-          {isPending ? "처리 중..." : "취소"}
+          {isPending ? "泥섎━ 以?.." : "痍⑥냼"}
         </button>
       </form>
       {errorMsg && <p className="text-[11px] text-red-500">{errorMsg}</p>}
@@ -95,7 +95,7 @@ function CancelButton({ orderId }: { orderId: number }) {
   );
 }
 
-// ─── DeleteButton ─────────────────────────────────────────────────────────────
+// ??? DeleteButton ?????????????????????????????????????????????????????????????
 
 function DeleteButton({ orderId }: { orderId: number }) {
   const router = useRouter();
@@ -104,9 +104,9 @@ function DeleteButton({ orderId }: { orderId: number }) {
   );
   const errorMsg = state && "message" in state ? state.message : undefined;
 
-  useActionToast(state, { success: "발주서가 삭제되었습니다." });
+  useActionToast(state, { success: "諛쒖＜?쒓? ??젣?섏뿀?듬땲??" });
 
-  // 삭제 성공 후 목록으로 이동
+  // ??젣 ?깃났 ??紐⑸줉?쇰줈 ?대룞
   useEffect(() => {
     if (state && "success" in state) {
       router.push("/dashboard/purchase-orders");
@@ -121,7 +121,7 @@ function DeleteButton({ orderId }: { orderId: number }) {
           type="submit"
           disabled={isPending}
           onClick={(e) => {
-            if (!confirm("발주서를 삭제하시겠습니까? 되돌릴 수 없습니다.")) e.preventDefault();
+            if (!confirm("諛쒖＜?쒕? ??젣?섏떆寃좎뒿?덇퉴? ?섎룎由????놁뒿?덈떎.")) e.preventDefault();
           }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-semibold text-red-600 transition-colors",
@@ -129,7 +129,7 @@ function DeleteButton({ orderId }: { orderId: number }) {
           )}
         >
           <XCircle className="h-4 w-4" />
-          {isPending ? "처리 중..." : "삭제"}
+          {isPending ? "泥섎━ 以?.." : "??젣"}
         </button>
       </form>
       {errorMsg && <p className="text-[11px] text-red-500">{errorMsg}</p>}
@@ -137,7 +137,7 @@ function DeleteButton({ orderId }: { orderId: number }) {
   );
 }
 
-// ─── ReceiveModal ─────────────────────────────────────────────────────────────
+// ??? ReceiveModal ?????????????????????????????????????????????????????????????
 
 function ReceiveModal({ orderId, items, onClose }: {
   orderId: number;
@@ -149,7 +149,7 @@ function ReceiveModal({ orderId, items, onClose }: {
   );
   const errorMsg = state && "message" in state ? state.message : undefined;
 
-  useActionToast(state, { success: "입고 처리가 완료되었습니다. 재고가 반영되었습니다." });
+  useActionToast(state, { success: "?낃퀬 泥섎━媛 ?꾨즺?섏뿀?듬땲?? ?ш퀬媛 諛섏쁺?섏뿀?듬땲??" });
 
   useEffect(() => {
     if (state && "success" in state) onClose();
@@ -169,9 +169,9 @@ function ReceiveModal({ orderId, items, onClose }: {
       <div className="w-full max-w-lg rounded-xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <p className="text-sm font-bold text-foreground">입고 처리</p>
+            <p className="text-sm font-bold text-foreground">?낃퀬 泥섎━</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              실제 입고 수량을 입력하세요 (발주 수량과 다를 수 있습니다)
+              ?ㅼ젣 ?낃퀬 ?섎웾???낅젰?섏꽭??(諛쒖＜ ?섎웾怨??ㅻ? ???덉뒿?덈떎)
             </p>
           </div>
           <button
@@ -195,7 +195,7 @@ function ReceiveModal({ orderId, items, onClose }: {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                    발주 {item.quantity}
+                    諛쒖＜ {item.quantity}
                   </span>
                   <input
                     type="text"
@@ -225,7 +225,7 @@ function ReceiveModal({ orderId, items, onClose }: {
               onClick={onClose}
               className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
             >
-              취소
+              痍⑥냼
             </button>
             <button
               type="submit"
@@ -236,7 +236,7 @@ function ReceiveModal({ orderId, items, onClose }: {
               )}
             >
               <PackageCheck className="h-4 w-4" />
-              {isPending ? "처리 중..." : "입고 확정"}
+              {isPending ? "泥섎━ 以?.." : "?낃퀬 ?뺤젙"}
             </button>
           </div>
         </form>
@@ -245,7 +245,7 @@ function ReceiveModal({ orderId, items, onClose }: {
   );
 }
 
-// ─── POActions ────────────────────────────────────────────────────────────────
+// ??? POActions ????????????????????????????????????????????????????????????????
 
 export function POActions({ orderId, status, items }: {
   orderId: number;
@@ -254,7 +254,7 @@ export function POActions({ orderId, status, items }: {
 }) {
   const [receiveOpen, setReceiveOpen] = useState(false);
 
-  // useCallback으로 메모이제이션 — ReceiveModal useEffect 불필요한 재실행 방지
+  // useCallback?쇰줈 硫붾え?댁젣?댁뀡 ??ReceiveModal useEffect 遺덊븘?뷀븳 ?ъ떎??諛⑹?
   const handleClose = useCallback(() => setReceiveOpen(false), []);
 
   return (
@@ -270,11 +270,11 @@ export function POActions({ orderId, status, items }: {
       <div className="flex items-center gap-2 flex-wrap">
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={() => window.open(`/dashboard/purchase-orders/${orderId}/print`, "_blank", "noopener,noreferrer")}
           className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
         >
           <Printer className="h-3.5 w-3.5" />
-          인쇄
+          ?몄뇙
         </button>
 
         {status === "DRAFT" && (
@@ -292,7 +292,7 @@ export function POActions({ orderId, status, items }: {
               className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
             >
               <PackageCheck className="h-4 w-4" />
-              입고 처리
+              ?낃퀬 泥섎━
             </button>
             <CancelButton orderId={orderId} />
           </>
@@ -304,3 +304,4 @@ export function POActions({ orderId, status, items }: {
     </>
   );
 }
+
