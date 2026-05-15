@@ -1,5 +1,5 @@
-﻿const CACHE_VERSION = "opsconsole-v1";
-const APP_SHELL = ["/", "/dashboard", "/login", "/favicon.ico"];
+﻿const CACHE_VERSION = "opsconsole-v3";
+const APP_SHELL = ["/favicon.ico"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -24,13 +24,17 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((response) => {
-          const cloned = response.clone();
-          if (response.ok && event.request.url.startsWith(self.location.origin)) {
+          if (
+            response.ok &&
+            !response.redirected &&
+            event.request.url.startsWith(self.location.origin)
+          ) {
+            const cloned = response.clone();
             caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, cloned));
           }
           return response;
         })
-        .catch(() => caches.match("/dashboard").then((fallback) => fallback || Response.error()));
+        .catch(() => caches.match("/favicon.ico").then((fallback) => fallback || Response.error()));
     })
   );
 });
