@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { HeroSlider } from "@/components/home/HeroSlider";
 import { FeatureCards } from "@/components/home/FeatureModal";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
+import { auth } from "@/lib/auth";
 
 const metrics = [
   { label: "관리 SKU",  value: "22",  sub: "품목"  },
@@ -11,7 +12,12 @@ const metrics = [
   { label: "부족 재고", value: "7",   sub: "품목", alert: true },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+  const userName = session?.user?.name;
+  const initial = userName?.charAt(0).toUpperCase();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
 
@@ -24,16 +30,44 @@ export default function HomePage() {
             </div>
             <span className="text-sm font-bold text-foreground">PartsFlow</span>
           </div>
+
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">로그인</Link>
-            <Link href="/dashboard" className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
-              대시보드
-            </Link>
+            {isLoggedIn ? (
+              <>
+                {/* 로그인 상태 */}
+                <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                    {initial}
+                  </div>
+                  <span>{userName}</span>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                >
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  대시보드
+                </Link>
+              </>
+            ) : (
+              <>
+                {/* 미로그인 상태 */}
+                <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  로그인
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                >
+                  대시보드
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Hero — 2-column: text left, slider right */}
+      {/* Hero */}
       <section className="border-b border-border bg-card">
         <div className="mx-auto max-w-screen-xl px-6 py-12 md:py-16">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
@@ -51,12 +85,30 @@ export default function HomePage() {
                 안전재고 임계값 설정부터 출고 요청 승인까지, 물류 전 과정을 단일 시스템에서 처리하세요.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
-                  대시보드 시작하기 <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href="/login" className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors">
-                  로그인
-                </Link>
+                {isLoggedIn ? (
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    대시보드로 이동
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                    >
+                      대시보드 시작하기 <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+                    >
+                      로그인
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
@@ -110,13 +162,35 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <ShieldCheck className="h-4 w-4 text-blue-600" />
-                <p className="text-sm font-bold text-foreground">지금 바로 시작하세요</p>
+                <p className="text-sm font-bold text-foreground">
+                  {isLoggedIn ? `${userName}님, 환영합니다` : "지금 바로 시작하세요"}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">창고 재고부터 출고 요청까지, 모든 부품 흐름을 단일 시스템으로 통합하세요.</p>
+              <p className="text-xs text-muted-foreground">
+                {isLoggedIn
+                  ? "대시보드에서 실시간 재고 현황과 출고 요청을 확인하세요."
+                  : "창고 재고부터 출고 요청까지, 모든 부품 흐름을 단일 시스템으로 통합하세요."}
+              </p>
             </div>
             <div className="flex flex-wrap gap-3 flex-shrink-0">
-              <Link href="/signup" className="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">무료로 시작하기</Link>
-              <Link href="/dashboard" className="rounded-md border border-border bg-card px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors">데모 보기</Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  대시보드로 이동
+                </Link>
+              ) : (
+                <>
+                  <Link href="/signup" className="rounded-md bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                    무료로 시작하기
+                  </Link>
+                  <Link href="/dashboard" className="rounded-md border border-border bg-card px-5 py-2 text-sm font-semibold text-foreground hover:bg-muted transition-colors">
+                    데모 보기
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
