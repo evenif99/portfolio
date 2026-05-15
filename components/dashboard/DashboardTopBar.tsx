@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useActionState } from "react";
+import { useState, useRef, useEffect, useActionState, useCallback } from "react";
 import Link from "next/link";
 import { useTheme } from "@/lib/theme-context";
 import {
@@ -40,12 +40,14 @@ interface AlertItem {
 }
 
 interface DashboardTopBarProps {
-  alertCount:         number;
+  userName:  string;
+  userEmail?: string;
+}
+
+interface TopBarData {
   alertItems:         AlertItem[];
   recentTransactions: TxItem[];
   todayTxCount:       number;
-  userName:           string;
-  userEmail?:         string;
 }
 
 // ── 개별 알림 해제 버튼 ─────────────────────────────────────────────────────
@@ -67,26 +69,43 @@ function QuickResolveButton({ alertId }: { alertId: number }) {
   );
 }
 
-export function DashboardTopBar({
-  alertCount,
-  alertItems,
-  recentTransactions,
-  todayTxCount,
-  userName,
-  userEmail,
-}: DashboardTopBarProps) {
-  const initial   = userName.charAt(0).toUpperCase();
-  const hasAlerts = alertCount > 0;
-  const hasTx     = recentTransactions.length > 0;
+export function DashboardTopBar({ userName, userEmail }: DashboardTopBarProps) {
+  const initial = userName.charAt(0).toUpperCase();
 
-  const [bellOpen, setBellOpen]   = useState(false);
-  const [userOpen, setUserOpen]   = useState(false);
-  const [bellTab,  setBellTab]    = useState<"alerts" | "history">("alerts");
+  const [data, setData] = useState<TopBarData>({ alertItems: [], recentTransactions: [], todayTxCount: 0 });
+  const [bellOpen, setBellOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [bellTab,  setBellTab]  = useState<"alerts" | "history">("alerts");
   const bellRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
 
-  // 알림이 있으면 알림 탭을, 없으면 이력 탭을 기본으로
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/topbar");
+      if (!res.ok) return;
+      const json = await res.json();
+      json.recentTransactions = json.recentTransactions.map((tx: TxItem & { createdAt: string }) => ({
+        ...tx,
+        createdAt: new Date(tx.createdAt),
+      }));
+      setData(json);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    const id = setInterval(fetchData, 30_000);
+    return () => clearInterval(id);
+  }, [fetchData]);
+
+  const alertCount = data.alertItems.length;
+  const todayTxCount = data.todayTxCount;
+  const alertItems = data.alertItems;
+  const recentTransactions = data.recentTransactions;
+  const hasAlerts = alertCount > 0;
+  const hasTx     = recentTransactions.length > 0;
+
   useEffect(() => {
     if (bellOpen) setBellTab(alertCount > 0 ? "alerts" : "history");
   }, [bellOpen, alertCount]);
@@ -100,7 +119,6 @@ export function DashboardTopBar({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // 벨 배지: 알림이 있으면 알림 수, 없으면 오늘 이력 수
   const bellBadge = alertCount > 0 ? alertCount : todayTxCount > 0 ? todayTxCount : 0;
   const bellBadgeColor = alertCount > 0 ? "bg-red-500" : "bg-blue-500";
 
