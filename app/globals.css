@@ -62,7 +62,7 @@
   --palette-bg: #f3f6f9;
   /* 섹션 전환용 라이트 배경 */
   --palette-surface: #f5f5f4;
-  /* 글자. 본문 대비 처리 방식: 미정 (사용자 결정 대기) */
+  /* 본문은 --color-ink-sub 사용, --color-ink는 큰 제목과 라벨 전용 (docs/design-guide.md 참고) */
   --palette-ink: #6b7a99;
   /* 보조 글자 */
   --palette-ink-sub: #28478d;

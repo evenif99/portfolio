@@ -40,12 +40,13 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
 - 스타일링은 Tailwind 유틸리티 클래스 우선,
   반복되거나 복잡한 스타일만 globals.css 사용
 - 디자인 토큰(브레이크포인트, 색상, 폰트)은
-  app/globals.css의 @theme 블록에서만 정의
-- 디자인 토큰(브레이크포인트, 색상, 폰트)은
   app/globals.css의 @theme 블록에서 정의.
-  단, 반응형으로 값이 바뀌는 토큰(gutter 등)은
-  @theme에 기본값을 두고 :root의 @media에서
+  반응형이나 data-theme으로 값이 바뀌는
+  토큰(gutter, --theme-* 등)은 @theme 또는
+  :root에 기본값을 두고 @media나 [data-theme]에서
   재정의
+- Tailwind의 dark: 유틸은 사용하지 않는다.
+  다크는 data-theme으로만 처리한다
 - UI 작업 전에 docs/design-guide.md를 먼저 읽고,
   "미정"인 항목은 임의로 정하지 말고 질문한다
 
