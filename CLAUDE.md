@@ -41,6 +41,11 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
   반복되거나 복잡한 스타일만 globals.css 사용
 - 디자인 토큰(브레이크포인트, 색상, 폰트)은
   app/globals.css의 @theme 블록에서만 정의
+- 디자인 토큰(브레이크포인트, 색상, 폰트)은
+  app/globals.css의 @theme 블록에서 정의.
+  단, 반응형으로 값이 바뀌는 토큰(gutter 등)은
+  @theme에 기본값을 두고 :root의 @media에서
+  재정의
 
 ## Workflow
 - 새 기능은 planner로 계획 → 승인 후

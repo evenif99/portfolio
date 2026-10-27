@@ -12,6 +12,33 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  /* 기본 브레이크포인트 제거 후 프로젝트 전용 토큰만 사용 */
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 80rem;
+
+  /* Container 최대 너비: content(일반), narrow(글 읽기용) */
+  --container-content: 72rem;
+  --container-narrow: 48rem;
+
+  /* 좌우 거터 (모바일 기본값, 아래 미디어 쿼리에서 확장) */
+  --spacing-gutter: 1rem;
+}
+
+/* 모바일 퍼스트: 브레이크포인트별 거터 확장 */
+@media (min-width: theme(--breakpoint-tablet)) {
+  :root {
+    --spacing-gutter: 2rem;
+  }
+}
+
+@media (min-width: theme(--breakpoint-desktop)) {
+  :root {
+    --spacing-gutter: 3rem;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
