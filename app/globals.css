@@ -39,7 +39,7 @@
   --color-ink: var(--theme-ink);
   --color-ink-sub: var(--theme-ink-sub);
   --color-accent: var(--theme-accent);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), var(--font-pretendard), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
