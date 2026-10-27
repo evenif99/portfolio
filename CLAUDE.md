@@ -37,6 +37,10 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
 - 여백은 margin보다 padding 우선
 - 반응형 브레이크포인트는 정해진 토큰만 사용
 - .env 파일은 읽거나 수정하지 않는다
+- 스타일링은 Tailwind 유틸리티 클래스 우선,
+  반복되거나 복잡한 스타일만 globals.css 사용
+- 디자인 토큰(브레이크포인트, 색상, 폰트)은
+  app/globals.css의 @theme 블록에서만 정의
 
 ## Workflow
 - 새 기능은 planner로 계획 → 승인 후
