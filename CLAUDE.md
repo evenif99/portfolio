@@ -46,6 +46,8 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
   단, 반응형으로 값이 바뀌는 토큰(gutter 등)은
   @theme에 기본값을 두고 :root의 @media에서
   재정의
+- UI 작업 전에 docs/design-guide.md를 먼저 읽고,
+  "미정"인 항목은 임의로 정하지 말고 질문한다
 
 ## Workflow
 - 새 기능은 planner로 계획 → 승인 후
