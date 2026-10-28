@@ -1,4 +1,5 @@
 import Container from "@/components/container";
+import ContactForm from "@/components/contact-form";
 import Reveal from "@/components/motion/reveal";
 import ThemeLayer from "@/components/theme-layer";
 import { contact } from "@/lib/contact";
@@ -64,6 +65,7 @@ export default function ContactSection() {
               {PLACEHOLDER}
             </p>
           )}
+          <ContactForm />
         </Reveal>
       </Container>
     </section>

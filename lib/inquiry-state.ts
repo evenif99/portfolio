@@ -13,8 +13,8 @@ export type InquiryFieldErrors = Partial<
 export type FormState =
   | { status: "idle" }
   | { status: "success" }
-  | { status: "rate_limited" }
-  | { status: "error" }
+  | { status: "rate_limited"; values: InquiryValues }
+  | { status: "error"; values: InquiryValues }
   | {
       status: "invalid";
       errors: InquiryFieldErrors;

@@ -20,6 +20,16 @@ function readString(formData: FormData, key: string): string {
   return typeof v === "string" ? v : "";
 }
 
+// message 만 \r\n, 단독 \r 을 \n 으로 정규화해 클라이언트 maxLength 와 zod max 글자 수 기준을 맞춘다.
+// name/email 은 줄바꿈 거부 규칙 유지를 위해 원본 그대로.
+function readValues(formData: FormData): InquiryValues {
+  return {
+    name: readString(formData, "name"),
+    email: readString(formData, "email"),
+    message: readString(formData, "message").replace(/\r\n?/g, "\n"),
+  };
+}
+
 function sanitizeUserAgent(raw: string | null): string | null {
   if (!raw) return null;
   const cleaned = raw.replace(CONTROL_CHARS, "").slice(0, USER_AGENT_MAX);
@@ -37,11 +47,7 @@ export async function submitInquiry(
       return { status: "success" };
     }
 
-    const values: InquiryValues = {
-      name: readString(formData, "name"),
-      email: readString(formData, "email"),
-      message: readString(formData, "message"),
-    };
+    const values = readValues(formData);
 
     const parsed = inquirySchema.safeParse(values);
     if (!parsed.success) {
@@ -69,7 +75,7 @@ export async function submitInquiry(
     // 실제 IP 해시 또는 공용 버킷 해시. rate limit과 insert에 같은 값을 쓴다.
     const ipHash = await getHashedClientIp();
     if ((await checkRateLimit(ipHash)) === "limited") {
-      return { status: "rate_limited" };
+      return { status: "rate_limited", values };
     }
 
     const userAgent = sanitizeUserAgent((await headers()).get("user-agent"));
@@ -80,12 +86,12 @@ export async function submitInquiry(
       ip_hash: ipHash,
       user_agent: userAgent,
     });
-    return ok ? { status: "success" } : { status: "error" };
+    return ok ? { status: "success" } : { status: "error", values };
   } catch (e) {
     console.error(
       "submitInquiry failed:",
       e instanceof Error ? e.name : "unknown",
     );
-    return { status: "error" };
+    return { status: "error", values: readValues(formData) };
   }
 }
