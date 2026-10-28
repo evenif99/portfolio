@@ -2,6 +2,7 @@ import Container from "@/components/container";
 import ProjectCard from "@/components/project-card";
 import ProjectCardMotion from "@/components/motion/project-card-motion";
 import Reveal from "@/components/motion/reveal";
+import ThemeLayer from "@/components/theme-layer";
 import { projects } from "@/lib/projects";
 
 export default function Projects() {
@@ -9,9 +10,10 @@ export default function Projects() {
     <section
       id="projects"
       aria-labelledby="projects-title"
-      className="scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
+      className="relative scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
     >
-      <Container>
+      <ThemeLayer />
+      <Container className="relative bg-transparent" data-theme-content>
         <Reveal>
           <h2
             id="projects-title"

@@ -1,5 +1,6 @@
 import Container from "@/components/container";
 import Reveal from "@/components/motion/reveal";
+import ThemeLayer from "@/components/theme-layer";
 import { skills } from "@/lib/skills";
 
 export default function Skills() {
@@ -8,9 +9,10 @@ export default function Skills() {
       id="skills"
       aria-labelledby="skills-title"
       data-theme="dark"
-      className="scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
+      className="relative scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
     >
-      <Container>
+      <ThemeLayer />
+      <Container className="relative bg-transparent" data-theme-content>
         <Reveal>
           <h2
             id="skills-title"

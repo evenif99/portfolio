@@ -35,9 +35,12 @@ Hero → About → Skills → Projects → Contact
    (데스크톱 hover 환경에서만)
 3. 섹션 테마 전환: 스크롤에 따라
    다크 ↔ 라이트 배경 반전 (CSS 변수 교체)
+   구현: 자기 테마 베이스 + 앞 섹션 테마 레이어의
+   opacity 크로스페이드(스크롤 scrub), 텍스트 색은
+   진행률 0.5에서 data-theme으로 전환
 4. 프로젝트 카드 hover: 살짝 올라오며
    이미지 확대 (hover 가능한 환경에서만)
-공통: prefers-reduced-motion이면 전부 비활성
+공통: prefers-reduced-motion이면 트랜지션 비활성, 색의 즉시 전환은 유지
 
 ## 프로젝트 카드
 - 서울30, 말해부엉 우선

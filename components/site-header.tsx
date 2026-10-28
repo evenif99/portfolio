@@ -10,7 +10,10 @@ const NAV_ITEMS: readonly { readonly href: string; readonly label: string }[] = 
 
 export default function SiteHeader() {
   return (
-    <header className="sticky top-0 z-10 border-b border-ink/20 bg-bg">
+    <header
+      data-theme="light"
+      data-site-header
+      className="sticky top-0 z-10 border-b border-ink/20 bg-bg">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-20 focus:bg-bg focus:p-4 focus:text-ink-sub"

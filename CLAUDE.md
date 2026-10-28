@@ -49,6 +49,9 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
   다크는 data-theme으로만 처리한다
 - UI 작업 전에 docs/design-guide.md를 먼저 읽고,
   "미정"인 항목은 임의로 정하지 말고 질문한다
+- 애니메이션이 아닌 상태 전환(헤더 테마 추적 등)은
+  useGSAP 안에서만 처리하고 reduced-motion 분기는
+  필요 없다
 
 ## Report Format
 - 보고는 결과 먼저, 짧게. 인사, 과정 설명,

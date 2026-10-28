@@ -1,5 +1,6 @@
 import Container from "@/components/container";
 import Reveal from "@/components/motion/reveal";
+import ThemeLayer from "@/components/theme-layer";
 import { contact } from "@/lib/contact";
 import { safeEmailLink, safeLink, type SafeLink } from "@/lib/safe-link";
 import { PLACEHOLDER } from "@/lib/types";
@@ -27,9 +28,14 @@ export default function ContactSection() {
       id="contact"
       aria-labelledby="contact-title"
       data-theme="dark"
-      className="scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
+      className="relative scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
     >
-      <Container size="narrow">
+      <ThemeLayer />
+      <Container
+        size="narrow"
+        className="relative bg-transparent"
+        data-theme-content
+      >
         <Reveal>
           <h2
             id="contact-title"

@@ -28,6 +28,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       ) : (
         <div
           aria-hidden="true"
+          data-theme="light"
           className="aspect-video overflow-hidden bg-surface"
         />
       )}
