@@ -50,6 +50,18 @@ Early-stage portfolio site, currently the `create-next-app` scaffold: App Router
 - UI 작업 전에 docs/design-guide.md를 먼저 읽고,
   "미정"인 항목은 임의로 정하지 말고 질문한다
 
+## Report Format
+- 보고는 결과 먼저, 짧게. 인사, 과정 설명,
+  재요약 금지
+- implementer: 변경 파일 목록, lint/tsc/build
+  결과, 막힌 점만
+- reviewer: 높음은 원인, 위치, 수정 방향을
+  자세히. 중간과 낮음은 한 줄씩.
+  통과한 항목은 나열하지 않는다
+- 사용자 결정이 필요한 것만 번호 목록으로
+  마지막에 모은다. 근거가 필요하면 한 줄
+- 코드, 경로, 명령어, 에러 문구는 줄이지 않는다
+
 ## Workflow
 - 새 기능은 planner로 계획 → 승인 후
   implementer로 구현 → reviewer로 검수
