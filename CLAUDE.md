@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Early-stage portfolio site, currently the `create-next-app` scaffold: App Router only, everything in `app/` (`layout.tsx`, `page.tsx`, `globals.css`). No `src/` directory.
 
 - `next.config.ts` enables `cacheComponents` and `partialPrefetching`, which change the default caching/rendering model. Check the bundled docs before using data fetching, `use cache`, or dynamic APIs.
-- Tailwind CSS v4 is wired through a Turbopack rule that runs `@tailwindcss/turbopack` on `*.css`. There is no `tailwind.config`; theme tokens live in the `@theme inline` block in `app/globals.css` (`--color-background`, `--color-foreground`, font vars). Dark mode follows `prefers-color-scheme` by swapping the `:root` variables.
+- Tailwind CSS v4 is wired through a Turbopack rule that runs `@tailwindcss/turbopack` on `*.css`. There is no `tailwind.config`; theme tokens live in the `@theme inline` block in `app/globals.css` (`--color-background`, `--color-foreground`, font vars). Dark mode does not follow the OS setting; it switches per section through the `data-theme` attribute. The scoped variables (`--theme-*`) change with `data-theme`, and the Tailwind color tokens (`--color-bg`, `--color-surface`, `--color-ink`, `--color-ink-sub`, `--color-accent`) reference them.
 - `app/layout.tsx` loads Geist / Geist Mono through `next/font/google` and exposes them as CSS variables. It types props with the global `LayoutProps<"/">` helper, which comes from generated route types (`.next/types`), not an import.
 - Path alias: `@/*` maps to the repo root (not `src/`).
 - TypeScript is `strict`.
