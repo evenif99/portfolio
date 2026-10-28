@@ -20,6 +20,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             src={project.image.src}
             alt={project.image.alt}
             fill
+            data-card-image=""
             sizes="(min-width: 48rem) 50vw, 100vw"
             className="object-cover"
           />

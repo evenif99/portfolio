@@ -1,5 +1,6 @@
 import Container from "@/components/container";
 import ProjectCard from "@/components/project-card";
+import ProjectCardMotion from "@/components/motion/project-card-motion";
 import Reveal from "@/components/motion/reveal";
 import { projects } from "@/lib/projects";
 
@@ -21,7 +22,9 @@ export default function Projects() {
           <ul className="grid grid-cols-1 gap-12 pt-10 tablet:grid-cols-2 tablet:gap-10 tablet:pt-14">
             {projects.map((project) => (
               <li key={project.name}>
-                <ProjectCard project={project} />
+                <ProjectCardMotion>
+                  <ProjectCard project={project} />
+                </ProjectCardMotion>
               </li>
             ))}
           </ul>
