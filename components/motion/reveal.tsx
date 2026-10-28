@@ -33,7 +33,8 @@ export default function Reveal({ children, className }: RevealProps) {
           ease: "power2.out",
           scrollTrigger: {
             trigger: el,
-            start: `top ${START_RATIO * 100}%`,
+            // clamp: 폰트 swap 으로 페이지가 줄어도 최대 스크롤을 넘지 않게 함
+            start: `clamp(top ${START_RATIO * 100}%)`,
             once: true,
           },
         });
