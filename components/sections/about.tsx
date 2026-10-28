@@ -1,6 +1,6 @@
 import Container from "@/components/container";
 import Reveal from "@/components/motion/reveal";
-import { PLACEHOLDER } from "@/lib/types";
+import { profile } from "@/lib/profile";
 
 export default function About() {
   return (
@@ -18,7 +18,7 @@ export default function About() {
             About
           </h2>
           <p className="pt-6 text-base break-words text-ink-sub tablet:pt-8 tablet:text-lg">
-            {PLACEHOLDER}
+            {profile.about}
           </p>
         </Reveal>
       </Container>

@@ -1,4 +1,5 @@
 import Container from "@/components/container";
+import { profile } from "@/lib/profile";
 
 export default function Hero() {
   return (
@@ -12,10 +13,13 @@ export default function Hero() {
           id="hero-title"
           className="text-5xl font-semibold tracking-tight break-words text-ink tablet:text-7xl desktop:text-9xl"
         >
-          백종우
+          {profile.name}
         </h1>
         <p className="pt-4 text-xl break-words text-ink-sub tablet:pt-6 tablet:text-3xl">
-          fullstack developer
+          {profile.role}
+        </p>
+        <p className="pt-4 text-base break-words text-ink-sub tablet:pt-6 tablet:text-lg">
+          {profile.tagline}
         </p>
       </Container>
     </section>

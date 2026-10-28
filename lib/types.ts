@@ -1,6 +1,13 @@
 // 확정되지 않은 값의 공용 표시 문구
 export const PLACEHOLDER = "(미정)";
 
+export type Profile = {
+  readonly name: string;
+  readonly role: string;
+  readonly tagline: string;
+  readonly about: string;
+};
+
 export type Project = {
   readonly name: string;
   readonly summary: string;
