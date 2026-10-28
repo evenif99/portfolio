@@ -7,7 +7,7 @@ export type InquiryErrorCode =
   | "newline";
 
 const NEWLINE = /[\r\n]/;
-const NAME_CONTROL = /[\p{Cc}\u2028\u2029]/u;
+const NAME_CONTROL = /[\p{Cc}\p{Zl}\p{Zp}]/u;
 
 export const inquirySchema = z.object({
   name: z
