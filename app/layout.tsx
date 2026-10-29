@@ -20,10 +20,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE = "백종우 | 풀스택 개발자 포트폴리오";
+const SITE_DESCRIPTION =
+  "프론트엔드를 기반으로 API 연동과 서비스 구현까지 직접 다루는 풀스택 개발자 백종우. React, Next.js, TypeScript로 만든 프로젝트를 소개합니다.";
+
 export const metadata: Metadata = {
-  title: "백종우 | 풀스택 개발자 포트폴리오",
-  description:
-    "프론트엔드를 기반으로 API 연동과 서비스 구현까지 직접 다루는 풀스택 개발자 백종우. React, Next.js, TypeScript로 만든 프로젝트를 소개합니다.",
+  metadataBase: new URL("https://portfolio-rho-snowy-63.vercel.app"),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: "ko_KR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

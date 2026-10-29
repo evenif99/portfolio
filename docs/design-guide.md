@@ -47,6 +47,9 @@ Hero → About → Skills → Projects → Contact
 - 상세 내용은 나중에 따로 정리
   (데이터는 플레이스홀더 구조)
 
+## OG 이미지
+OG 이미지는 임시안이며 추후 교체될 수 있음. 교체 시 app/opengraph-image.png 를 같은 파일명으로 덮어쓰기
+
 ## 레퍼런스
 - 이미지 1: 미니멀 대형 타이포 Hero + About
 - 이미지 2: Hero / About / Quote /
