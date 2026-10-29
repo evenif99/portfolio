@@ -13,15 +13,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   ].filter((item): item is NonNullable<typeof item> => item !== null);
 
   return (
-    <article className="flex flex-col gap-6">
+    <article className="flex flex-col gap-6 tablet:slide:flex-row tablet:slide:items-start tablet:slide:gap-10">
       {project.image !== undefined ? (
-        <div className="relative aspect-video overflow-hidden bg-surface">
+        <div className="relative aspect-video overflow-hidden bg-surface tablet:slide:w-7/12 tablet:slide:shrink-0">
           <Image
             src={project.image.src}
             alt={project.image.alt}
             fill
             data-card-image=""
-            sizes="(min-width: 48rem) 50vw, 100vw"
+            sizes="(min-width: 48rem) and (min-height: 45rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) 58vw, (min-width: 48rem) 50vw, 100vw"
             className="object-cover"
           />
         </div>
@@ -29,10 +29,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <div
           aria-hidden="true"
           data-theme="light"
-          className="aspect-video overflow-hidden bg-surface"
+          className="aspect-video overflow-hidden bg-surface tablet:slide:w-7/12 tablet:slide:shrink-0"
         />
       )}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 tablet:slide:min-w-0 tablet:slide:flex-1">
         <h3 className="text-2xl font-semibold break-words text-ink">
           {project.name}
         </h3>
