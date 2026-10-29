@@ -22,12 +22,12 @@ export default function SiteHeader() {
       </a>
       <Container className="flex h-16 items-center justify-end">
         <nav aria-label="주요 메뉴">
-          <ul className="flex flex-wrap items-center justify-end gap-1 tablet:gap-4">
+          <ul className="flex flex-nowrap items-center justify-end gap-0 tablet:gap-4">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="block px-2 py-3 text-sm text-ink-sub tablet:px-3 tablet:text-base"
+                  className="block px-1.5 py-3 text-sm text-ink-sub tablet:px-3 tablet:text-base"
                 >
                   {item.label}
                 </a>
