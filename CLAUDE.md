@@ -23,6 +23,7 @@ Single-page portfolio site on the App Router. `app/page.tsx` composes the header
 - `docs/design-guide.md`: the design guide referenced from Rules.
 - `next.config.ts` enables `cacheComponents` and `partialPrefetching`, which change the default caching/rendering model. Check the bundled docs before using data fetching, `use cache`, or dynamic APIs.
 - Tailwind CSS v4 is wired through a Turbopack rule that runs `@tailwindcss/turbopack` on `*.css`. There is no `tailwind.config`; tokens live in `app/globals.css`. Dark mode does not follow the OS setting; it switches per section through the `data-theme` attribute.
+- `@custom-variant slide` in `app/globals.css` is the section-snap condition (motion allowed, `hover: hover`, `pointer: fine`, `min-height: 45rem`); use it as `tablet:slide:*`. `components/motion/header-theme.tsx` repeats the same condition in `SNAP_QUERY`.
 - Token structure in `app/globals.css`: `@theme` holds the breakpoints (`tablet`, `desktop`; the default breakpoints are removed), container widths and `--spacing-gutter`; `@theme static` holds the `--palette-*` light palette; `:root` / `[data-theme="light"]` and `[data-theme="dark"]` define the scoped `--theme-*` variables; `@theme inline` maps the Tailwind color tokens (`--color-background`, `--color-foreground`, `--color-bg`, `--color-surface`, `--color-ink`, `--color-ink-sub`, `--color-accent`) to `--theme-*` and defines the font tokens (`--font-sans`, `--font-mono`). The gutter is widened by `@media` queries on `:root`.
 - `app/layout.tsx` loads Geist / Geist Mono through `next/font/google` and Pretendard through `next/font/local` (`app/fonts/`), and exposes them as CSS variables. It types props with the global `LayoutProps<"/">` helper, which comes from generated route types (`.next/types`), not an import.
 - GSAP plugins (`useGSAP`, `ScrollTrigger`, `ScrollToPlugin`) are registered once in `lib/gsap.ts`, which is imported only from client components (`components/motion/*`).
@@ -61,6 +62,13 @@ Single-page portfolio site on the App Router. `app/page.tsx` composes the header
   필요 없다
 - 앵커 이동 스크롤은 GSAP ScrollToPlugin을 useGSAP
   + gsap.matchMedia 안에서만 사용한다
+- 스크롤 스냅은 CSS scroll-snap(proximity 또는 mandatory)만 사용, JS 로
+  휠을 가로채지 않는다. mandatory 는 각 섹션이 한 화면에 들어올 때만
+  쓰고, 넘으면 스냅을 끈다 (AnchorScroll 이동 중 scrollSnapType 인라인
+  토글은 휠을 가로채는 것이 아니므로 허용). 앵커로 슬라이드 단위로
+  나눈 섹션은 슬라이드 하나가 한 화면에 들어오면 허용한다
+- 반응형 브레이크포인트 규칙의 예외: 스크롤 스냅 전용으로 화면 높이
+  45rem 미만에서 스냅을 끄는 높이 조건을 허용한다
 
 ## Report Format
 - 보고는 결과 먼저, 짧게. 인사, 과정 설명,

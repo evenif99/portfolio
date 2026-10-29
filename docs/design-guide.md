@@ -43,6 +43,7 @@ Hero → About → Skills → Projects → Contact
 4. 프로젝트 카드 hover: 살짝 올라오며
    이미지 확대 (hover 가능한 환경에서만)
 공통: prefers-reduced-motion이면 트랜지션 비활성, 색의 즉시 전환은 유지
+섹션 스냅: tablet 이상, 모션 허용, hover: hover, pointer fine, 높이 45rem 이상에서만 CSS scroll-snap mandatory 사용
 
 ## 프로젝트 카드
 - 서울30, 말해부엉 우선
