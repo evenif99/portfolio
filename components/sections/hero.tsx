@@ -6,7 +6,7 @@ export default function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="scroll-mt-16 bg-bg py-24 tablet:py-32 desktop:py-48"
+      className="scroll-mt-16 bg-bg py-24 tablet:slide:min-h-[calc(100svh_-_4rem)] tablet:snap-start tablet:snap-always tablet:py-32 desktop:py-48"
     >
       <Container>
         <h1

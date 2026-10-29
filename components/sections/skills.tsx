@@ -9,7 +9,7 @@ export default function Skills() {
       id="skills"
       aria-labelledby="skills-title"
       data-theme="dark"
-      className="relative scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
+      className="relative scroll-mt-16 bg-bg py-20 tablet:slide:min-h-[calc(100svh_-_4rem)] tablet:snap-start tablet:snap-always tablet:py-28 desktop:py-36"
     >
       <ThemeLayer />
       <Container className="relative bg-transparent" data-theme-content>

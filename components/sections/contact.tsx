@@ -28,7 +28,7 @@ export default function ContactSection() {
       id="contact"
       aria-labelledby="contact-title"
       data-theme="dark"
-      className="relative scroll-mt-16 bg-bg py-20 tablet:py-28 desktop:py-36"
+      className="relative scroll-mt-16 bg-bg py-20 tablet:slide:min-h-[calc(100svh_-_4rem)] tablet:snap-start tablet:snap-always tablet:py-28 desktop:py-36"
     >
       <ThemeLayer />
       <Container

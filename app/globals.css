@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * 섹션 스냅 활성 조건 (tablet: 과 함께 사용, 예: tablet:slide:snap-mandatory).
+ * 모션 허용 + 마우스 등 정밀 포인터 + 화면 높이 45rem 이상.
+ * 높이 조건은 스냅 전용 예외 (CLAUDE.md 참고).
+ */
+@custom-variant slide (@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) and (min-height: 45rem));
+
 /* 테마 의미 변수: 라이트 기본값은 @theme 의 --palette-* 를 참조 */
 :root,
 [data-theme="light"] {
