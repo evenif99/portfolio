@@ -15,11 +15,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-Early-stage portfolio site, currently the `create-next-app` scaffold: App Router only, everything in `app/` (`layout.tsx`, `page.tsx`, `globals.css`). No `src/` directory.
+Single-page portfolio site on the App Router. `app/page.tsx` composes the header, the sections (hero, about, skills, projects, contact) and the motion components. No `src/` directory.
 
+- `app/`: `layout.tsx`, `page.tsx`, `globals.css`, `favicon.ico`, `fonts/` (local Pretendard variable font and its license).
+- `components/`: shared components (`container.tsx`, `project-card.tsx`, `site-header.tsx`, `theme-layer.tsx`), `sections/` (`hero`, `about`, `skills`, `projects`, `contact`), and `motion/` (`anchor-scroll`, `custom-cursor`, `header-theme`, `project-card-motion`, `reveal`, `theme-transition`).
+- `lib/`: content data (`profile.ts`, `skills.ts`, `projects.ts`, `contact.ts`), shared types (`types.ts`), the link helper (`safe-link.ts`) and the GSAP setup (`gsap.ts`).
+- `docs/design-guide.md`: the design guide referenced from Rules.
 - `next.config.ts` enables `cacheComponents` and `partialPrefetching`, which change the default caching/rendering model. Check the bundled docs before using data fetching, `use cache`, or dynamic APIs.
-- Tailwind CSS v4 is wired through a Turbopack rule that runs `@tailwindcss/turbopack` on `*.css`. There is no `tailwind.config`; theme tokens live in the `@theme inline` block in `app/globals.css` (`--color-background`, `--color-foreground`, font vars). Dark mode does not follow the OS setting; it switches per section through the `data-theme` attribute. The scoped variables (`--theme-*`) change with `data-theme`, and the Tailwind color tokens (`--color-bg`, `--color-surface`, `--color-ink`, `--color-ink-sub`, `--color-accent`) reference them.
-- `app/layout.tsx` loads Geist / Geist Mono through `next/font/google` and exposes them as CSS variables. It types props with the global `LayoutProps<"/">` helper, which comes from generated route types (`.next/types`), not an import.
+- Tailwind CSS v4 is wired through a Turbopack rule that runs `@tailwindcss/turbopack` on `*.css`. There is no `tailwind.config`; tokens live in `app/globals.css`. Dark mode does not follow the OS setting; it switches per section through the `data-theme` attribute.
+- Token structure in `app/globals.css`: `@theme` holds the breakpoints (`tablet`, `desktop`; the default breakpoints are removed), container widths and `--spacing-gutter`; `@theme static` holds the `--palette-*` light palette; `:root` / `[data-theme="light"]` and `[data-theme="dark"]` define the scoped `--theme-*` variables; `@theme inline` maps the Tailwind color tokens (`--color-background`, `--color-foreground`, `--color-bg`, `--color-surface`, `--color-ink`, `--color-ink-sub`, `--color-accent`) to `--theme-*` and defines the font tokens (`--font-sans`, `--font-mono`). The gutter is widened by `@media` queries on `:root`.
+- `app/layout.tsx` loads Geist / Geist Mono through `next/font/google` and Pretendard through `next/font/local` (`app/fonts/`), and exposes them as CSS variables. It types props with the global `LayoutProps<"/">` helper, which comes from generated route types (`.next/types`), not an import.
+- GSAP plugins (`useGSAP`, `ScrollTrigger`, `ScrollToPlugin`) are registered once in `lib/gsap.ts`, which is imported only from client components (`components/motion/*`).
+- `"use client"` appears only in `components/motion/*`; everything else is a server component.
 - Path alias: `@/*` maps to the repo root (not `src/`).
 - TypeScript is `strict`.
 
