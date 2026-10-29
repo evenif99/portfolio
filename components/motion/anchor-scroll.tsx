@@ -36,10 +36,13 @@ export default function AnchorScroll() {
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       let tween: gsap.core.Tween | null = null;
 
+      // 이동 중에는 CSS 스냅이 매 프레임 scrollTo 를 가로채지 않도록 인라인으로 해제하고,
+      // 종료 경로(완료, 트윈 중단, 사용자 개입, 정리)는 모두 stopWatching 을 거쳐 복원한다.
       const stopWatching = () => {
         INTERRUPT_EVENTS.forEach((type) =>
           window.removeEventListener(type, handleInterrupt),
         );
+        document.documentElement.style.removeProperty("scroll-snap-type");
       };
 
       function handleInterrupt(event: Event) {
@@ -79,7 +82,9 @@ export default function AnchorScroll() {
         event.preventDefault();
 
         const header = document.querySelector<HTMLElement>("[data-site-header]");
-        const offset = header?.offsetHeight ?? 0;
+        // 스냅 정지 위치와 같도록 섹션의 scroll-margin-top(scroll-mt-16 = 64px)을 오프셋으로 쓴다.
+        const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop);
+        const offset = margin > 0 ? margin : (header?.offsetHeight ?? 0);
         const top = Math.max(
           0,
           target.getBoundingClientRect().top + window.scrollY - offset,
@@ -101,6 +106,12 @@ export default function AnchorScroll() {
         INTERRUPT_EVENTS.forEach((type) =>
           window.addEventListener(type, handleInterrupt, { passive: true }),
         );
+        // 스냅이 꺼진 환경(모바일, 터치, 낮은 화면)에서는 건드리지 않는다.
+        // 이전 이동의 인라인 해제는 위의 stopWatching 에서 이미 복원된 뒤라 계산값이 정확하다.
+        const root = document.documentElement;
+        if (getComputedStyle(root).scrollSnapType !== "none") {
+          root.style.scrollSnapType = "none";
+        }
 
         tween = gsap.to(window, {
           scrollTo: { y: top, autoKill: false },
