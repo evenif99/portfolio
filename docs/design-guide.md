@@ -27,6 +27,8 @@ Hero → About → Skills → Projects → Contact
 - 한글: Pretendard
 - 영문: Geist (현재 프로젝트 기본값 유지)
 - Pretendard 적용 방식: next/font/local
+- 한글은 subset 폰트 사용. 콘텐츠에 새 한글이 들어가면 subset 재생성 필요
+- subset 범위: ASCII + KS X 1001 한글 2350자 + app/components/lib 의 ts/tsx 에 쓰인 글자. fontTools pyftsubset 으로 생성(woff2, layout-features *)
 
 ## 모션 효과 4종
 1. 스크롤 등장: 아래에서 위로 페이드인

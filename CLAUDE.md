@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Single-page portfolio site on the App Router. `app/page.tsx` composes the header, the sections (hero, about, skills, projects, contact) and the motion components. No `src/` directory.
 
-- `app/`: `layout.tsx`, `page.tsx`, `globals.css`, `favicon.ico`, `fonts/` (local Pretendard variable font and its license).
+- `app/`: `layout.tsx`, `page.tsx`, `globals.css`, `favicon.ico`, `fonts/` (local Pretendard variable font (Korean subset) and its license).
 - `components/`: shared components (`container.tsx`, `project-card.tsx`, `site-header.tsx`, `theme-layer.tsx`), `sections/` (`hero`, `about`, `skills`, `projects`, `contact`), and `motion/` (`anchor-scroll`, `custom-cursor`, `header-theme`, `project-card-motion`, `reveal`, `theme-transition`).
 - `lib/`: content data (`profile.ts`, `skills.ts`, `projects.ts`, `contact.ts`), shared types (`types.ts`), the link helper (`safe-link.ts`) and the GSAP setup (`gsap.ts`).
 - `docs/design-guide.md`: the design guide referenced from Rules.
