@@ -52,12 +52,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <li key={label}>
                 <a
                   href={link.href}
+                  aria-label={`${label} ${project.name}`}
                   className="inline-block py-2 underline decoration-accent underline-offset-4"
                   {...(link.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
                 >
                   {label}
+                  {link.external ? (
+                    <span className="sr-only"> (새 탭에서 열림)</span>
+                  ) : null}
                 </a>
               </li>
             ))}

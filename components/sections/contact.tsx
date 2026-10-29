@@ -55,6 +55,9 @@ export default function ContactSection() {
                       : {})}
                   >
                     {item.label}
+                    {item.link.external ? (
+                      <span className="sr-only"> (새 탭에서 열림)</span>
+                    ) : null}
                   </a>
                 </li>
               ))}
