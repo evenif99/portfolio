@@ -55,7 +55,7 @@ export default function BookStage() {
       <div className="contents tablet:slide:sticky tablet:slide:top-0 tablet:slide:flex tablet:slide:h-[100svh] tablet:slide:items-center tablet:slide:justify-center tablet:slide:overflow-hidden tablet:slide:[perspective:150vw]">
         <div
           data-book-body
-          className="contents tablet:slide:relative tablet:slide:block tablet:slide:aspect-[16/10] tablet:slide:w-[min(86vw,140svh)] tablet:slide:shrink-0 tablet:slide:transform-3d tablet:slide:[transform:translateX(-25%)]"
+          className="contents tablet:slide:relative tablet:slide:block tablet:slide:aspect-[16/10] tablet:slide:w-(--book-w) tablet:slide:shrink-0 tablet:slide:transform-3d tablet:slide:[transform:translateX(-25%)]"
         >
           <BookTabs />
 
@@ -71,7 +71,7 @@ export default function BookStage() {
             >
               <span
                 aria-hidden="true"
-                className={`${BOARD} book-board-left tablet:slide:rounded-l-[1.5%]`}
+                className={`${BOARD} book-board-left tablet:slide:[border-radius:var(--book-r-flip)]`}
               />
               <div className={PAPER_LEFT}>
                 <IntroLeftPage />
@@ -103,7 +103,7 @@ export default function BookStage() {
           <div className="order-8 block tablet:slide:absolute tablet:slide:inset-y-0 tablet:slide:left-1/2 tablet:slide:w-1/2">
             <span
               aria-hidden="true"
-              className={`${BOARD} book-board-right tablet:slide:rounded-r-[1.5%]`}
+              className={`${BOARD} book-board-right tablet:slide:[border-radius:var(--book-r-cover)]`}
             />
             <div className={PAPER_RIGHT}>
               <SkillsRightPage />
