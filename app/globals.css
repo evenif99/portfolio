@@ -62,6 +62,15 @@
 
   /* 좌우 거터 (모바일 기본값, 아래 미디어 쿼리에서 확장) */
   --spacing-gutter: 1rem;
+  --spacing-rim: 14px;
+
+  /* 임시: 책 컨셉 spike(/spike/book) 시안 색. 확정 전, 기존 팔레트/테마와 무관 */
+  --color-book-bg: #12261b;
+  --color-book-paper: #f6f4ec;
+  --color-book-ink: #1f3d2b;
+  --color-book-cover: #4c3428;
+  --color-book-gold: #d9b98a;
+  --color-book-green: #8fb86a;
 }
 
 /* 원본 팔레트 (라이트 기본값, 사용자 확정). static: 미사용이어도 항상 출력 */
@@ -107,4 +116,92 @@ body {
     outline: 2px solid var(--theme-accent);
     outline-offset: 2px;
   }
+}
+
+/* 책 컨셉 spike: 가죽 보드와 페이지 접힘(복잡/반복 스타일만 클래스로 둔다) */
+/* 가죽 결: feTurbulence + feDiffuseLighting 을 인라인 SVG data URI 로 만든 정적 배경(애니메이션 요소에 filter 없음) */
+.book-leather,
+.book-board-left,
+.book-board-right {
+  /* 시안 C: 큰 결(0.03) + 미세 결(0.8) multiply 후 lighting. 시안과 같이 overlay 로 얹는다 */
+  --book-grain: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27512%27%20height%3D%27512%27%3E%3Cfilter%20id%3D%27c%27%20x%3D%270%27%20y%3D%270%27%20width%3D%27100%25%27%20height%3D%27100%25%27%20color-interpolation-filters%3D%27sRGB%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.03%27%20numOctaves%3D%273%27%20seed%3D%273%27%20stitchTiles%3D%27stitch%27%20result%3D%27big0%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%271.3%200%200%200%20-0.15%20%201.3%200%200%200%20-0.15%20%201.3%200%200%200%20-0.15%20%200%200%200%200%201%27%20in%3D%27big0%27%20result%3D%27big%27%2F%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%272%27%20seed%3D%275%27%20stitchTiles%3D%27stitch%27%20result%3D%27fine0%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%271%200%200%200%200%20%201%200%200%200%200%20%201%200%200%200%200%20%200%200%200%200%201%27%20in%3D%27fine0%27%20result%3D%27fine%27%2F%3E%3CfeBlend%20in%3D%27big%27%20in2%3D%27fine%27%20mode%3D%27multiply%27%20result%3D%27mix%27%2F%3E%3CfeColorMatrix%20in%3D%27mix%27%20type%3D%27matrix%27%20values%3D%270%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%201%200%200%200%200%27%20result%3D%27h%27%2F%3E%3CfeDiffuseLighting%20in%3D%27h%27%20lighting-color%3D%27%23d8c8bb%27%20surfaceScale%3D%273.6%27%3E%3CfeDistantLight%20azimuth%3D%27225%27%20elevation%3D%2755%27%2F%3E%3C%2FfeDiffuseLighting%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url(%23c)%27%2F%3E%3C%2Fsvg%3E");
+  --book-base: var(--color-book-cover);
+  --book-spine: 90deg;
+  --book-edge: color-mix(in srgb, var(--book-base), black 55%);
+  /* 두께: 오른쪽/아래 옆면의 어두운 갈색 얇은 면 (정적 box-shadow) */
+  --book-thick:
+    1px 1px 0 var(--book-edge), 2px 2px 0 var(--book-edge), 3px 3px 0 var(--book-edge);
+  background-color: var(--book-base);
+  background-image:
+    linear-gradient(var(--book-spine), rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0.18) 3%, transparent 9%),
+    radial-gradient(ellipse at 50% 45%, transparent 45%, rgb(0 0 0 / 0.38) 100%),
+    var(--book-grain);
+  background-size: 100% 100%, 100% 100%, 512px 512px;
+  background-blend-mode: normal, normal, overlay;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    inset 0 0 1.4svh rgb(0 0 0 / 0.5),
+    var(--book-thick),
+    0 2.2svh 3.6svh -0.4svh rgb(0 0 0 / 0.55);
+}
+
+/* 안쪽 면은 바깥보다 살짝 어둡다. 책등은 왼쪽 보드는 오른쪽, 오른쪽 보드는 왼쪽 */
+.book-board-left,
+.book-board-right {
+  --book-base: color-mix(in srgb, var(--color-book-cover), black 22%);
+}
+
+.book-board-left {
+  --book-spine: 270deg;
+  /* 뒤집힌 면이라 오른쪽이 책등이다. 아래쪽 두께만 둔다 */
+  --book-thick: 0 1px 0 var(--book-edge), 0 2px 0 var(--book-edge), 0 3px 0 var(--book-edge);
+}
+
+/* 표지 글자: 금색 엠보싱 */
+.book-emboss {
+  text-shadow:
+    0 1px 0 rgb(255 240 210 / 0.35),
+    0 -1px 0 rgb(0 0 0 / 0.65),
+    0 2px 6px rgb(0 0 0 / 0.5);
+}
+
+/* 종이: 책등 쪽 음영 + 바깥 가장자리에 아주 옅은 페이지 결 선 */
+.book-page-left {
+  background:
+    repeating-linear-gradient(90deg, rgb(31 61 43 / 0.09) 0 1px, transparent 1px 3px)
+      left / 9px 100% no-repeat,
+    linear-gradient(
+      90deg,
+      var(--color-book-paper) 0%,
+      var(--color-book-paper) 85%,
+      color-mix(in srgb, var(--color-book-paper), var(--color-book-ink) 12%) 100%
+    );
+}
+
+.book-page-right {
+  background:
+    repeating-linear-gradient(90deg, rgb(31 61 43 / 0.09) 0 1px, transparent 1px 3px)
+      right / 9px 100% no-repeat,
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-book-paper), var(--color-book-ink) 12%) 0%,
+      var(--color-book-paper) 15%,
+      var(--color-book-paper) 100%
+    );
+}
+
+/* 가죽 시안 비교(/spike/leather 전용). 기존 .book-leather 는 수정하지 않는다.
+   --leather-grain 은 페이지에서 data URI 로 주입한다. 결은 overlay 로 얹어 어두운/밝은 부분이 모두 드러나게 한다. */
+.leather-swatch {
+  background-color: #5a3a2b;
+  background-image:
+    linear-gradient(90deg, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0.18) 3%, transparent 9%),
+    radial-gradient(ellipse at 50% 45%, transparent 45%, rgb(0 0 0 / 0.38) 100%),
+    var(--leather-grain);
+  background-size: 100% 100%, 100% 100%, 512px 512px;
+  background-blend-mode: normal, normal, overlay;
+  box-shadow:
+    inset 0 0 0 0.4svh color-mix(in srgb, var(--color-book-gold), transparent 60%),
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    0 1.2svh 3.5svh rgb(0 0 0 / 0.55);
 }

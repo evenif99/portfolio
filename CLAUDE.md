@@ -69,6 +69,22 @@ Single-page portfolio site on the App Router. `app/page.tsx` composes the header
   나눈 섹션은 슬라이드 하나가 한 화면에 들어오면 허용한다
 - 반응형 브레이크포인트 규칙의 예외: 스크롤 스냅 전용으로 화면 높이
   45rem 미만에서 스냅을 끄는 높이 조건을 허용한다
+- 3D 변환(perspective, rotateY, preserve-3d, backface-visibility)은
+  transform으로 보고 허용한다. 진행바는 scaleX로만 표현한다.
+  box-shadow, clip-path, filter는 애니메이션하지 않고 그림자 변화는
+  별도 레이어의 opacity로 처리한다. will-change는 애니메이션 구간에서만
+  걸고 정지 시 해제한다.
+- 책 펼침 모드: 100svh 고정(sticky) 스테이지의 진행도를 ScrollTrigger
+  scrub으로 읽어 반영하는 것은 허용한다(스크롤을 바꾸지 않는다).
+  ScrollTrigger의 pin, snap 옵션, Observer, normalizeScroll,
+  wheel/touchmove preventDefault는 금지한다. 스냅은 트랙 안의 앵커
+  요소에 CSS scroll-snap mandatory만 쓴다(펼침 하나가 한 화면에 들어오므로
+  기존 슬라이드 단위 허용 조항에 해당한다). 책 탭 이동은 ScrollToPlugin으로
+  스크롤 위치만 바꾸고 scrub이 그것을 읽는다.
+- main 직계 section이 테마/헤더 추적 단위다. 책 라우트에서는 펼침(spread)을
+  `[data-spread]`로 표시하고, 스테이지 안에 중첩되므로 `main > section`
+  기반 컴포넌트(HeaderTheme, ThemeTransition)는 책 라우트에 마운트하지
+  않는다.
 
 ## Report Format
 - 보고는 결과 먼저, 짧게. 인사, 과정 설명,

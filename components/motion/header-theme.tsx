@@ -3,13 +3,12 @@
 // reduced-motion 에서도 비활성화하지 않음: 색의 즉시 전환은 모션이 아니라 상태 변경이기 때문.
 // (기본 조건은 항상 참이고, 스냅 조건은 기준점만 바꾼다.)
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { SLIDE_QUERY } from "@/lib/slide-query";
 
 const DEFAULT_THEME = "light";
 
-// 스냅 모드 조건: tablet 이상 + app/globals.css 의 @custom-variant slide 와 같은 조건.
-// 조건을 바꾸면 globals.css 도 함께 수정한다.
-const SNAP_QUERY =
-  "(min-width: 48rem) and (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) and (min-height: 45rem)";
+// 스냅 모드 조건: lib/slide-query.ts (app/globals.css 의 @custom-variant slide 와 같은 조건)
+const SNAP_QUERY = SLIDE_QUERY;
 
 // 스냅·AnchorScroll 정지 위치(섹션 top 이 scroll-mt-16 = 64px)에서
 // 해당 섹션이 활성이 되도록 헤더 하단 기준에 허용 오차를 더한다. 스냅 모드에서만 사용.
